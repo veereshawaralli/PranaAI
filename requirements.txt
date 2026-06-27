@@ -1,0 +1,19 @@
+Django==5.0.6
+psycopg2-binary==2.9.9
+Pillow==10.3.0
+django-crispy-forms==2.1
+crispy-bootstrap5==2024.2
+python-dotenv==1.0.1
+# AI, ML & OCR packages (will be used later, but good to have ready)
+torch==2.3.0
+torchvision==0.18.0
+opencv-python==4.9.0.80
+easyocr==1.7.1
+spacy==3.7.4
+pandas==2.2.2
+reportlab==4.2.0
+google-generativeai==0.5.4
+requests==2.32.3
+gunicorn==22.0.0
+dj-database-url==2.1.0
+white-noise==6.6.0
