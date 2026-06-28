@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - MediBuddy AI{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="fw-bold">Welcome, {{ user.username }}!</h2>
+        <p class="text-muted">Here is an overview of your health dashboard.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Profile Summary -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0 rounded-3 h-100">
+            <div class="card-body">
+                <h5 class="card-title fw-bold border-bottom pb-2 mb-3">
+                    <i class="bi bi-person-badge text-primary me-2"></i>Profile
+                </h5>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                {% if user.phone_number %}<p><strong>Phone:</strong> {{ user.phone_number }}</p>{% endif %}
+                {% if user.blood_group %}<p><strong>Blood Group:</strong> {{ user.blood_group }}</p>{% endif %}
+                <div class="mt-3">
+                    <a href="#" class="btn btn-outline-primary btn-sm">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medicine Reminders -->
+    <div class="col-md-8 mb-4">
+        <div class="card shadow-sm border-0 rounded-3 h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                    <h5 class="card-title fw-bold mb-0">
+                        <i class="bi bi-capsule text-primary me-2"></i>Medicine Reminders
+                    </h5>
+                    <a href="{% url 'add_reminder' %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Add Reminder
+                    </a>
+                </div>
+                
+                {% if reminders %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Medicine</th>
+                                <th>Dosage</th>
+                                <th>Frequency</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reminder in reminders %}
+                            <tr>
+                                <td><span class="fw-semibold">{{ reminder.medicine_name }}</span></td>
+                                <td>{{ reminder.dosage }}</td>
+                                <td>{{ reminder.frequency }}</td>
+                                <td>{{ reminder.time|time:"H:i" }}</td>
+                                <td>
+                                    {% if reminder.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-bell-slash text-muted fs-1 d-block mb-3"></i>
+                    <p class="text-muted mb-0">No active medicine reminders.</p>
+                    <p class="text-muted"><small>Click 'Add Reminder' to set one up.</small></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     
     # My apps
     'accounts',
+    'dashboard',
     
     # Third party apps
     'crispy_forms',
