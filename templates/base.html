@@ -18,11 +18,8 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-        }
-        .navbar-brand {
-            font-weight: 700;
-            color: #0d6efd !important;
+            background-color: #f4f9f9;
+            padding-top: 76px; /* Space for fixed navbar */
         }
     </style>
     
@@ -31,10 +28,10 @@
 <body>
 
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <i class="bi bi-heart-pulse-fill text-primary"></i> MediBuddy AI
+                <i class="bi bi-heart-pulse-fill"></i> MediBuddy AI
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -56,7 +53,7 @@
                             <a class="nav-link" href="{% url 'login' %}">Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link btn btn-primary text-white ms-2 px-3" href="{% url 'register' %}">Register</a>
+                            <a class="nav-link btn btn-primary text-white ms-3 px-4 rounded-pill" href="{% url 'register' %}">Register</a>
                         </li>
                     {% endif %}
                 </ul>
