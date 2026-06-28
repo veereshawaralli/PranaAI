@@ -1,6 +1,6 @@
-# MediBuddy AI
+# CuraVision AI
 
-MediBuddy AI is a comprehensive healthcare web application built with Python Django. It integrates AI and Machine Learning to provide features like disease detection from medical reports, handwritten prescription reading (OCR), and an AI-powered health chatbot.
+CuraVision AI is a comprehensive healthcare web application built with Python Django. It integrates AI and Machine Learning to provide features like disease detection from medical reports, handwritten prescription reading (OCR), and an AI-powered health chatbot.
 
 ## Features
 
