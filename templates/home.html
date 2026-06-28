@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - MediBuddy AI{% endblock %}
+
+{% block content %}
+<div class="px-4 py-5 my-5 text-center">
+    <i class="bi bi-heart-pulse-fill text-primary" style="font-size: 4rem;"></i>
+    <h1 class="display-5 fw-bold text-body-emphasis mt-3">Welcome to MediBuddy AI</h1>
+    <div class="col-lg-6 mx-auto">
+        <p class="lead mb-4">Your intelligent healthcare companion. Analyze medical reports, get medication reminders, and consult our AI health chatbot.</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-4 gap-3">Get Started</a>
+            <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-4">Login</a>
+            {% else %}
+            <a href="#" class="btn btn-primary btn-lg px-4 gap-3">Go to Dashboard</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
