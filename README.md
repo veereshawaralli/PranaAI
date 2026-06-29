@@ -31,6 +31,11 @@
 ### 📸 Prescription Scanner (OCR)
 - **Live Camera & Upload:** Seamlessly digitize handwritten prescriptions by taking a live photo or uploading a document.
 - **Smart Data Extraction:** Automatically reads and extracts medicine names, dosages, and schedules.
+<br>
+<p align="center">
+  <img src="static/images/scan-screenshot.png" alt="Prana AI Prescription OCR Scanner" width="700" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px;">
+</p>
+<br>
 
 ### 💊 Medication Reminders
 - **Smart Tracking:** Keep track of all your active medications.
