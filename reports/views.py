@@ -23,6 +23,8 @@ TEXT = HexColor('#334155')
 MUTED = HexColor('#64748B')
 WHITE = HexColor('#FFFFFF')
 BORDER = HexColor('#E2E8F0')
+LIGHT_TRANS = colors.Color(240/255.0, 253/255.0, 250/255.0, alpha=0.7)
+WHITE_TRANS = colors.Color(1, 1, 1, alpha=0.7)
 
 class LineDraw(Flowable):
     """Draws a horizontal line across the page."""
@@ -100,7 +102,7 @@ def generate_report(request):
         ('TEXTCOLOR', (0,0), (0,-1), MUTED),
         ('FONTNAME', (1,0), (1,-1), 'Helvetica'),
         ('TEXTCOLOR', (1,0), (1,-1), TEXT),
-        ('BACKGROUND', (0,0), (-1,-1), LIGHT),
+        ('BACKGROUND', (0,0), (-1,-1), LIGHT_TRANS),
         ('BOTTOMPADDING', (0,0), (-1,-1), 10),
         ('TOPPADDING', (0,0), (-1,-1), 10),
         ('ALIGN', (0,0), (-1,-1), 'LEFT'),
@@ -144,9 +146,9 @@ def generate_report(request):
         # Alternating row colors for glassmorphism/clean feel
         for i in range(1, len(med_data)):
             if i % 2 == 0:
-                ts.append(('BACKGROUND', (0, i), (-1, i), LIGHT))
+                ts.append(('BACKGROUND', (0, i), (-1, i), LIGHT_TRANS))
             else:
-                ts.append(('BACKGROUND', (0, i), (-1, i), WHITE))
+                ts.append(('BACKGROUND', (0, i), (-1, i), WHITE_TRANS))
                 
         med_table.setStyle(TableStyle(ts))
         Story.append(med_table)
@@ -174,10 +176,10 @@ def generate_report(request):
                     data = img.getdata()
                     new_data = []
                     for item in data:
-                        # Blend with white (96% white, 4% original) for an ultra-subtle premium watermark
-                        r = int(item[0] * 0.04 + 255 * 0.96)
-                        g = int(item[1] * 0.04 + 255 * 0.96)
-                        b = int(item[2] * 0.04 + 255 * 0.96)
+                        # Blend with white (85% white, 15% original) for a visible but soft watermark
+                        r = int(item[0] * 0.15 + 255 * 0.85)
+                        g = int(item[1] * 0.15 + 255 * 0.85)
+                        b = int(item[2] * 0.15 + 255 * 0.85)
                         new_data.append((r, g, b, 255))
                     img.putdata(new_data)
                     img.save(watermark_path, "PNG")
