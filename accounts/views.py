@@ -17,3 +17,21 @@ def register_view(request):
         form = CustomUserCreationForm()
     
     return render(request, 'accounts/register.html', {'form': form})
+
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def edit_profile(request):
+    from .forms import ProfileEditForm
+    if request.method == 'POST':
+        form = ProfileEditForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your profile has been updated successfully.")
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = ProfileEditForm(instance=request.user)
+    
+    return render(request, 'accounts/edit_profile.html', {'form': form})
