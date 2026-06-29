@@ -173,6 +173,7 @@
                                 <th>Frequency</th>
                                 <th>Time</th>
                                 <th>Status</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -188,6 +189,14 @@
                                     {% else %}
                                     <span class="badge bg-secondary">Inactive</span>
                                     {% endif %}
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    <a href="{% url 'edit_reminder' reminder.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-1 me-1" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'delete_reminder' reminder.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
                                 </td>
                             </tr>
                             {% endfor %}

@@ -23,3 +23,29 @@ def add_reminder(request):
         form = MedicineReminderForm()
     
     return render(request, 'dashboard/add_reminder.html', {'form': form})
+
+from django.shortcuts import get_object_or_404
+
+@login_required
+def edit_reminder(request, pk):
+    reminder = get_object_or_404(MedicineReminder, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = MedicineReminderForm(request.POST, instance=reminder)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Medicine reminder updated successfully!')
+            return redirect('dashboard_home')
+    else:
+        form = MedicineReminderForm(instance=reminder)
+    
+    return render(request, 'dashboard/edit_reminder.html', {'form': form})
+
+@login_required
+def delete_reminder(request, pk):
+    reminder = get_object_or_404(MedicineReminder, pk=pk, user=request.user)
+    if request.method == 'POST':
+        reminder.delete()
+        messages.success(request, 'Medicine reminder deleted successfully!')
+        return redirect('dashboard_home')
+    
+    return render(request, 'dashboard/delete_reminder.html', {'reminder': reminder})

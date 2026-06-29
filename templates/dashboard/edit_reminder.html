@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Edit Medicine Reminder - Prana AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="glass-card p-4 p-md-5 mt-4 mb-5 animate-in">
+            <div class="section-header mb-4">
+                <a href="{% url 'dashboard_home' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+                <div class="section-icon ms-2">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <h5>Edit Medicine Reminder</h5>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary py-2 fw-bold rounded-pill">Update Reminder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
