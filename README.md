@@ -1,4 +1,4 @@
-# Prana AI 🏥✨
+# Prana AI 🏥
 
 <p align="center">
   <img src="static/images/logo.png" alt="Prana AI Logo" width="150">
