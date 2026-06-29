@@ -4,10 +4,12 @@ from django.contrib.auth.decorators import login_required
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 import io
 import datetime
+import os
+from django.conf import settings
 from dashboard.models import MedicineReminder
 
 @login_required
@@ -24,6 +26,18 @@ def generate_report(request):
     styles.add(ParagraphStyle(name='Center', alignment=1))
     
     Story = []
+
+    # Logo
+    logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
+    if os.path.exists(logo_path):
+        try:
+            # We align it to center above the title
+            logo = Image(logo_path, width=60, height=60)
+            logo.hAlign = 'CENTER'
+            Story.append(logo)
+            Story.append(Spacer(1, 12))
+        except Exception as e:
+            print("Error loading logo:", e)
 
     # Title
     title = Paragraph("<b>Prana AI Health Report</b>", styles['Title'])
