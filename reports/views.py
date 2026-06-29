@@ -106,12 +106,39 @@ def generate_report(request):
 
     def draw_bg(canvas, doc):
         canvas.saveState()
-        # Draw Watermark
-        canvas.setFont('Helvetica-Bold', 80)
-        canvas.setFillGray(0.90)
-        canvas.translate(letter[0]/2, letter[1]/2)
-        canvas.rotate(45)
-        canvas.drawCentredString(0, 0, "Prana AI")
+        # Draw Watermark Logo
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo.png')
+        watermark_path = os.path.join(settings.BASE_DIR, 'static', 'images', 'logo_watermark.png')
+        
+        if os.path.exists(logo_path):
+            try:
+                if not os.path.exists(watermark_path):
+                    from PIL import Image as PILImage
+                    img = PILImage.open(logo_path).convert("RGBA")
+                    data = img.getdata()
+                    new_data = []
+                    for item in data:
+                        # Blend the color with white (90% white, 10% original)
+                        # This creates a solid pale image that doesn't rely on PDF alpha support
+                        r = int(item[0] * 0.10 + 255 * 0.90)
+                        g = int(item[1] * 0.10 + 255 * 0.90)
+                        b = int(item[2] * 0.10 + 255 * 0.90)
+                        new_data.append((r, g, b, 255))
+                    img.putdata(new_data)
+                    img.save(watermark_path, "PNG")
+                
+                w, h = 400, 400
+                x = (letter[0] - w) / 2
+                y = (letter[1] - h) / 2
+                canvas.drawImage(watermark_path, x, y, width=w, height=h, mask=None)
+            except Exception as e:
+                print("Error drawing watermark logo:", e)
+        else:
+            canvas.setFont('Helvetica-Bold', 80)
+            canvas.setFillGray(0.90)
+            canvas.translate(letter[0]/2, letter[1]/2)
+            canvas.rotate(45)
+            canvas.drawCentredString(0, 0, "Prana AI")
         canvas.restoreState()
 
         canvas.saveState()
