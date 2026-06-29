@@ -1,6 +1,6 @@
 # Project State & Architecture
 
-**Project Name**: CuraVision AI
+**Project Name**: Prana AI (formerly CuraVision / MediBuddy)
 **Framework**: Django 5.0.6
 **Database**: SQLite (Development) -> PostgreSQL (Production Planned)
 

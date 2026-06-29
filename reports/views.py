@@ -26,7 +26,7 @@ def generate_report(request):
     Story = []
 
     # Title
-    title = Paragraph("<b>MediBuddy Health Report</b>", styles['Title'])
+    title = Paragraph("<b>Prana Health Report</b>", styles['Title'])
     Story.append(title)
     
     # Date
@@ -88,7 +88,7 @@ def generate_report(request):
         Story.append(Paragraph("No active medications found.", styles['Normal']))
 
     Story.append(Spacer(1, 48))
-    Story.append(Paragraph("<i>This is a generated report from CuraVision AI (MediBuddy). Consult your doctor for medical advice.</i>", styles['Italic']))
+    Story.append(Paragraph("<i>This is a generated report from Prana AI. Consult your doctor for medical advice.</i>", styles['Italic']))
 
     # Build the PDF
     doc.build(Story)

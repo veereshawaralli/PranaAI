@@ -44,7 +44,7 @@ def send_message(request):
                 return JsonResponse({'error': 'Message cannot be empty.'}, status=400)
                 
             # Define system instructions for the health chatbot
-            prompt = f"You are a helpful, professional, and knowledgeable AI health assistant for the MediBuddy application. Answer the user's health-related query. Keep responses concise but informative. Please note that you cannot give definitive medical diagnoses. User message: {user_message}"
+            prompt = f"You are a helpful, professional, and knowledgeable AI health assistant for the Prana AI application. Answer the user's health-related query. Keep responses concise but informative. Please note that you cannot give definitive medical diagnoses. User message: {user_message}"
             
             response = model.generate_content(prompt)
             
