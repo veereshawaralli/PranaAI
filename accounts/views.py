@@ -28,7 +28,7 @@ def edit_profile(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Your profile has been updated successfully.")
-            return redirect('dashboard')
+            return redirect('dashboard_home')
         else:
             messages.error(request, "Please correct the errors below.")
     else:
