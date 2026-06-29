@@ -25,6 +25,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('chatbot/', include('chatbot.urls')),
+    path('reports/', include('reports.urls')),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
 ]
 

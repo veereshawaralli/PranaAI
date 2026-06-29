@@ -6,17 +6,25 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 
-# Initialize Gemini if key is available
-api_key = os.environ.get('GEMINI_API_KEY')
-if api_key:
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
-else:
-    model = None
+def get_gemini_model():
+    from django.conf import settings
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(settings.BASE_DIR, '.env'))
+    api_key = os.environ.get('GEMINI_API_KEY')
+    if api_key:
+        # Strip quotes if they were accidentally added
+        api_key = api_key.strip('"').strip("'")
+        genai.configure(api_key=api_key)
+        return genai.GenerativeModel('gemini-3.5-flash')
+    return None
 
 @login_required
 def chat_view(request):
     """Render the chat interface."""
+    from django.conf import settings
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(settings.BASE_DIR, '.env'))
+    api_key = os.environ.get('GEMINI_API_KEY')
     return render(request, 'chatbot/chat.html', {'api_key_set': bool(api_key)})
 
 @login_required
@@ -24,8 +32,9 @@ def chat_view(request):
 def send_message(request):
     """Handle incoming messages and return Gemini response."""
     if request.method == 'POST':
+        model = get_gemini_model()
         if not model:
-            return JsonResponse({'error': 'Gemini API key is not configured.'}, status=500)
+            return JsonResponse({'error': 'Gemini API key is not configured or invalid.'}, status=500)
             
         try:
             data = json.loads(request.body)
