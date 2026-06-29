@@ -1,25 +1,101 @@
-# CuraVision AI
+# Prana AI 🏥✨
 
-CuraVision AI is a comprehensive healthcare web application built with Python Django. It integrates AI and Machine Learning to provide features like disease detection from medical reports, handwritten prescription reading (OCR), and an AI-powered health chatbot.
+![Prana AI Header](static/images/logo.png)
 
-## Features
+**Prana AI** is an intelligent, beautifully designed healthcare companion web application. Built with a premium "glassmorphism" aesthetic and powered by modern AI, it empowers users to digitize their medical records, extract insights from handwritten prescriptions, and converse with a smart health assistant.
 
-- **Authentication System**: Secure user registration, login, and personalized dashboards.
-- **AI Disease Detection**: Analyzes X-Rays, MRIs, and medical reports using PyTorch/OpenCV to detect abnormalities.
-- **Prescription OCR**: Extracts medicines, dosages, and frequencies from handwritten prescriptions using EasyOCR.
-- **AI Health Chatbot**: Powered by LLMs to answer health queries and explain diseases.
-- **Medicine Reminders**: Track and get notified for upcoming medications.
-- **Nearby Hospitals**: Integration with Google Maps API to locate nearby medical facilities.
-- **Health Reports Generation**: Downloadable PDF summaries of your medical history.
+---
 
-## Technology Stack
+## 🌟 Key Features
 
-- **Backend**: Python, Django
-- **Database**: PostgreSQL
-- **Frontend**: HTML5, CSS3, Bootstrap 5, JavaScript
-- **AI/ML**: PyTorch, OpenCV, EasyOCR, spaCy
-- **APIs**: Google Maps, Gemini/OpenAI
+### 🎨 Premium User Interface
+- **Glassmorphism Design:** Frosted glass cards, fluid gradients, and refined typography (Plus Jakarta Sans).
+- **Responsive Dashboard:** A comprehensive, color-coded dashboard summarizing your health profile and reminders.
+- **Micro-Interactions:** Smooth `fadeInUp` animations, interactive hover states, and dynamic status indicators.
 
-## Project Status
+### 🤖 AI-Powered Chatbot
+- **Gemini AI Integration:** Consult our smart health assistant for queries regarding symptoms, general well-being, and medical advice.
+- **Modern Chat Interface:** Modeled after premium messaging apps with dynamic typing indicators and clickable suggestion pills.
 
-**In Development** - Currently setting up the core architecture and backend models.
+### 📸 Prescription Scanner (OCR)
+- **Live Camera & Upload:** Seamlessly digitize handwritten prescriptions by taking a live photo or uploading a document.
+- **Smart Data Extraction:** Automatically reads and extracts medicine names, dosages, and schedules.
+
+### 💊 Medication Reminders
+- **Smart Tracking:** Keep track of all your active medications.
+- **Full CRUD Support:** Easily add, edit, and safely delete your medication reminders.
+
+### 📄 Intelligent Health Reports (PDF)
+- **Premium PDF Generation:** Download beautifully formatted PDF reports summarizing your patient profile and active medications.
+- **Custom Branding:** Features transparent alternating row colors, premium typography, and an ultra-subtle, non-intrusive watermark of the Prana AI logo.
+
+---
+
+## 🛠️ Technology Stack
+
+| Category | Technology |
+|---|---|
+| **Backend Framework** | Python, Django 6.0 |
+| **Database** | SQLite3 (Configurable to PostgreSQL) |
+| **Frontend Styling** | HTML5, Vanilla CSS3 (Custom Glassmorphism Tokens), Bootstrap 5 |
+| **Icons & Fonts** | Bootstrap Icons, Inter, Plus Jakarta Sans |
+| **AI Integration** | Google Gemini API (Chatbot) |
+| **PDF Generation** | ReportLab |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+Make sure you have Python 3.x installed on your machine.
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/veereshawaralli/MediBuddy.git
+   cd MediBuddy
+   ```
+
+2. **Create and activate a virtual environment:**
+   ```bash
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On Mac/Linux:
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Environment Variables:**
+   Create a `.env` file in the root directory and add your Google Gemini API Key:
+   ```env
+   GEMINI_API_KEY=your_api_key_here
+   ```
+
+5. **Run Database Migrations:**
+   ```bash
+   python manage.py migrate
+   ```
+
+6. **Start the Development Server:**
+   ```bash
+   python manage.py runserver
+   ```
+   Navigate to `http://localhost:8000` in your web browser.
+
+---
+
+## 👨‍💻 Contributing
+
+Contributions are welcome! If you'd like to improve the UI, add new AI capabilities, or fix bugs, please fork the repository and submit a pull request.
+
+---
+
+<p align="center">
+  <i>Made with <span style="color: #F43F5E;">❤️</span> for better health</i>
+</p>
