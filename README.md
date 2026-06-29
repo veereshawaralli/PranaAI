@@ -27,6 +27,11 @@
 ### 🤖 AI-Powered Chatbot
 - **Gemini AI Integration:** Consult our smart health assistant for queries regarding symptoms, general well-being, and medical advice.
 - **Modern Chat Interface:** Modeled after premium messaging apps with dynamic typing indicators and clickable suggestion pills.
+<br>
+<p align="center">
+  <img src="static/images/chatbot-screenshot.png" alt="Prana AI Chatbot" width="700" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px;">
+</p>
+<br>
 
 ### 📸 Prescription Scanner (OCR)
 - **Live Camera & Upload:** Seamlessly digitize handwritten prescriptions by taking a live photo or uploading a document.
