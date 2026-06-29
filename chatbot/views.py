@@ -15,7 +15,7 @@ def get_gemini_model():
         # Strip quotes if they were accidentally added
         api_key = api_key.strip('"').strip("'")
         genai.configure(api_key=api_key)
-        return genai.GenerativeModel('gemini-3.5-flash')
+        return genai.GenerativeModel('gemini-2.5-flash')
     return None
 
 @login_required

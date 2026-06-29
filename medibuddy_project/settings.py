@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'dashboard',
     'chatbot',
     'reports',
+    'ocr',
     
     # Third party apps
     'crispy_forms',

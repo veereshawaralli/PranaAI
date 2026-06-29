@@ -26,7 +26,7 @@ def generate_report(request):
     Story = []
 
     # Title
-    title = Paragraph("<b>Prana Health Report</b>", styles['Title'])
+    title = Paragraph("<b>Prana AI Health Report</b>", styles['Title'])
     Story.append(title)
     
     # Date
@@ -90,8 +90,28 @@ def generate_report(request):
     Story.append(Spacer(1, 48))
     Story.append(Paragraph("<i>This is a generated report from Prana AI. Consult your doctor for medical advice.</i>", styles['Italic']))
 
+    def draw_bg(canvas, doc):
+        canvas.saveState()
+        # Draw Watermark
+        canvas.setFont('Helvetica-Bold', 80)
+        canvas.setFillGray(0.90)
+        canvas.translate(letter[0]/2, letter[1]/2)
+        canvas.rotate(45)
+        canvas.drawCentredString(0, 0, "Prana AI")
+        canvas.restoreState()
+
+        canvas.saveState()
+        # Draw Border
+        canvas.setStrokeColor(colors.teal)
+        canvas.setLineWidth(3)
+        margin = 36
+        width = letter[0] - 2 * margin
+        height = letter[1] - 2 * margin
+        canvas.rect(margin, margin, width, height)
+        canvas.restoreState()
+
     # Build the PDF
-    doc.build(Story)
+    doc.build(Story, onFirstPage=draw_bg, onLaterPages=draw_bg)
     
     # Get the value of the BytesIO buffer and write it to the response.
     pdf = buffer.getvalue()
