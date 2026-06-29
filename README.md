@@ -38,9 +38,8 @@
 - **Smart Data Extraction:** Automatically reads and extracts medicine names, dosages, and schedules.
 <br>
 <p align="center">
-  <img src="static/images/prescription-sample.jpg" alt="Sample Prescription" width="32%" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px;">
-  <img src="static/images/scan-screenshot.png" alt="Prana AI Prescription OCR Scanner" width="32%" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px; margin-left: 1%;">
-  <img src="static/images/ocr-results-screenshot.png" alt="Prana AI OCR Results" width="32%" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px; margin-left: 1%;">
+  <img src="static/images/scan-screenshot.png" alt="Prana AI Prescription OCR Scanner" width="48%" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px;">
+  <img src="static/images/ocr-results-screenshot.png" alt="Prana AI OCR Results" width="48%" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px; margin-left: 2%;">
 </p>
 <br>
 
