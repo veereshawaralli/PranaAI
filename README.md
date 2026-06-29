@@ -1,10 +1,10 @@
-# Prana AI - Health in your hands
+# Prana AI — Swasthya Sahayak 🏥✨
 
 <p align="center">
   <img src="static/images/logo.png" alt="Prana AI Logo" width="150">
 </p>
 
-**Prana AI** is an intelligent, beautifully designed healthcare companion web application. Built with a premium "glassmorphism" aesthetic and powered by modern AI, it empowers users to digitize their medical records, extract insights from handwritten prescriptions, and converse with a smart health assistant.
+**Prana AI (Swasthya Sahayak)** is an intelligent, beautifully designed healthcare companion web application. Built with a premium "glassmorphism" aesthetic and powered by modern AI, it empowers users to digitize their medical records, extract insights from handwritten prescriptions, and converse with a smart health assistant.
 
 <p align="center">
   <img src="static/images/hero-screenshot.png" alt="Prana AI Hero Section" width="800" style="border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -72,7 +72,7 @@ Healthcare should be accessible, intelligent, and effortless. Prana AI was built
 Prana AI is more than just an app; it's your personal health advocate available 24/7. From digitizing your latest doctor's visit to ensuring you never miss a dose of medication, we are here to support your well-being every step of the way.
 
 <p align="center">
-  <i>Your Health, Made Intelligent & Simple.</i><br>
+  <i>Swasthya Sahayak — Your Health, Made Intelligent & Simple.</i><br>
   <i>Made with <span style="color: #F43F5E;">❤️</span> by the Prana AI Team</i>
 </p>
 
