@@ -75,3 +75,68 @@ Prana AI is more than just an app; it's your personal health advocate available 
   <i>Your Health, Made Intelligent & Simple.</i><br>
   <i>Made with <span style="color: #F43F5E;">❤️</span> by the Prana AI Team</i>
 </p>
+
+---
+
+## 🛠️ Technology Stack
+
+| Category | Technology |
+|---|---|
+| **Backend Framework** | Python, Django |
+| **Database** | SQLite3 (Configurable to PostgreSQL) |
+| **Frontend Styling** | HTML5, Vanilla CSS3 (Custom Glassmorphism Tokens), Bootstrap 5 |
+| **Icons & Fonts** | Bootstrap Icons, Inter, Plus Jakarta Sans |
+| **AI Integration** | Google Gemini API (Chatbot & OCR) |
+| **PDF Generation** | ReportLab |
+
+---
+
+## 💻 Getting Started (For Developers)
+
+### Prerequisites
+Make sure you have Python 3.x installed on your machine.
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/veereshawaralli/MediBuddy.git
+   cd MediBuddy
+   ```
+
+2. **Create and activate a virtual environment:**
+   ```bash
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On Mac/Linux:
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Environment Variables:**
+   Create a `.env` file in the root directory and add your Google Gemini API Key:
+   ```env
+   GEMINI_API_KEY=your_api_key_here
+   ```
+
+5. **Run Database Migrations:**
+   ```bash
+   python manage.py migrate
+   ```
+
+6. **Start the Development Server:**
+   ```bash
+   python manage.py runserver
+   ```
+   Navigate to `http://localhost:8000` in your web browser.
+
+---
+
+## 👨‍💻 Contributing
+
+Contributions are welcome! If you'd like to improve the UI, add new AI capabilities, or fix bugs, please fork the repository and submit a pull request.
