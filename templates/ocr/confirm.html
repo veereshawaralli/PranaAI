@@ -5,59 +5,59 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-lg-10">
-        <div class="card shadow-sm border-0 rounded-3 mt-4">
-            <div class="card-body p-4 p-md-5">
-                <div class="text-center mb-4">
-                    <i class="bi bi-clipboard-check fs-1 text-success"></i>
-                    <h2 class="fw-bold mt-2">Confirm Extracted Medicines</h2>
-                    <p class="text-muted">Review what our AI found. Uncheck any items you don't want to save.</p>
+        <div class="glass-card p-4 p-md-5 mt-4 animate-in">
+            <div class="text-center mb-4">
+                <div class="auth-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+                    <i class="bi bi-clipboard-check"></i>
+                </div>
+                <h2 class="fw-bold mt-2" style="color: var(--medical-darker);">Confirm Extracted Medicines</h2>
+                <p class="text-muted">Review what our AI found. Uncheck any items you don't want to save.</p>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Save</th>
+                                <th>Medicine Name</th>
+                                <th>Dosage</th>
+                                <th>Frequency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for med in medicines %}
+                            <tr>
+                                <td>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="save_item[]" value="{{ forloop.counter0 }}" checked>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" name="medicine_name[]" value="{{ med.medicine_name }}" class="form-control" required>
+                                </td>
+                                <td>
+                                    <input type="text" name="dosage[]" value="{{ med.dosage }}" class="form-control">
+                                </td>
+                                <td>
+                                    <input type="text" name="frequency[]" value="{{ med.frequency }}" class="form-control">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
                 
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Save</th>
-                                    <th>Medicine Name</th>
-                                    <th>Dosage</th>
-                                    <th>Frequency</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for med in medicines %}
-                                <tr>
-                                    <td>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="save_item[]" value="{{ forloop.counter0 }}" checked>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="medicine_name[]" value="{{ med.medicine_name }}" class="form-control" required>
-                                    </td>
-                                    <td>
-                                        <input type="text" name="dosage[]" value="{{ med.dosage }}" class="form-control">
-                                    </td>
-                                    <td>
-                                        <input type="text" name="frequency[]" value="{{ med.frequency }}" class="form-control">
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="{% url 'ocr:upload' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left"></i> Re-Upload
-                        </a>
-                        <button type="submit" class="btn btn-success px-4">
-                            <i class="bi bi-save"></i> Save to Reminders
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'ocr:upload' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="bi bi-arrow-left me-1"></i> Re-Upload
+                    </a>
+                    <button type="submit" class="btn btn-success rounded-pill px-4">
+                        <i class="bi bi-save me-1"></i> Save to Reminders
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

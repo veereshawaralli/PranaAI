@@ -1,58 +1,172 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Dashboard - Prana AI{% endblock %}
 
+{% block extra_css %}
+<style>
+    .quick-action {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 1.5rem 1rem;
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: var(--radius-xl);
+        text-decoration: none;
+        transition: var(--transition);
+        color: #334155;
+    }
+    .quick-action:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+        border-color: transparent;
+        color: #334155;
+    }
+    .quick-action-icon {
+        width: 52px; height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-md);
+        font-size: 1.4rem;
+        transition: transform 0.3s ease;
+    }
+    .quick-action:hover .quick-action-icon {
+        transform: scale(1.1) rotate(3deg);
+    }
+    .qa-teal   { background: rgba(20,184,166,0.1); color: var(--medical-primary); }
+    .qa-blue   { background: rgba(6,182,212,0.1); color: #06B6D4; }
+    .qa-purple { background: rgba(139,92,246,0.1); color: #8B5CF6; }
+    .qa-orange { background: rgba(249,115,22,0.1); color: #F97316; }
+    .quick-action span {
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .profile-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        padding: 0.6rem 0;
+    }
+    .profile-field:not(:last-child) {
+        border-bottom: 1px solid #F1F5F9;
+    }
+    .profile-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #94A3B8;
+    }
+    .profile-value {
+        font-weight: 600;
+        color: #334155;
+        font-size: 0.95rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h2 class="fw-bold">Welcome, {{ user.username }}!</h2>
-        <p class="text-muted">Here is an overview of your health dashboard.</p>
+<!-- Welcome Banner -->
+<div class="dashboard-welcome animate-in">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2>Welcome back, {{ user.first_name|default:user.username }}! 👋</h2>
+            <p>Here's your health overview for today.</p>
+        </div>
+        <div class="col-auto d-none d-md-block" style="position: relative; z-index: 1;">
+            <a href="{% url 'reports:generate_report' %}" class="btn btn-white rounded-pill px-4 py-2 fw-bold" target="_blank" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);">
+                <i class="bi bi-file-earmark-pdf me-1"></i> Download Report
+            </a>
+        </div>
     </div>
 </div>
 
-<div class="row">
+<!-- Quick Actions -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <a href="{% url 'ocr:upload' %}" class="quick-action animate-in" style="animation-delay: 0.05s;">
+            <div class="quick-action-icon qa-teal"><i class="bi bi-camera"></i></div>
+            <span>Scan Prescription</span>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{% url 'add_reminder' %}" class="quick-action animate-in" style="animation-delay: 0.1s;">
+            <div class="quick-action-icon qa-blue"><i class="bi bi-plus-circle"></i></div>
+            <span>Add Reminder</span>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{% url 'chatbot:chat' %}" class="quick-action animate-in" style="animation-delay: 0.15s;">
+            <div class="quick-action-icon qa-purple"><i class="bi bi-robot"></i></div>
+            <span>AI Chatbot</span>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{% url 'edit_profile' %}" class="quick-action animate-in" style="animation-delay: 0.2s;">
+            <div class="quick-action-icon qa-orange"><i class="bi bi-person-gear"></i></div>
+            <span>Edit Profile</span>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
     <!-- Profile Summary -->
-    <div class="col-md-4 mb-4">
-        <div class="card shadow-sm border-0 rounded-3 h-100">
+    <div class="col-md-4 mb-2">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.1s;">
             <div class="card-body">
-                <h5 class="card-title fw-bold border-bottom pb-2 mb-3">
-                    <i class="bi bi-person-badge text-primary me-2"></i>Profile
-                </h5>
-                <p><strong>Email:</strong> {{ user.email }}</p>
-                {% if user.phone_number %}<p><strong>Phone:</strong> {{ user.phone_number }}</p>{% endif %}
-                {% if user.blood_group %}<p><strong>Blood Group:</strong> {{ user.blood_group }}</p>{% endif %}
-                <div class="mt-3">
-                    <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary btn-sm">Edit Profile</a>
-                    <a href="{% url 'reports:generate_report' %}" class="btn btn-outline-success btn-sm ms-2" target="_blank">
-                        <i class="bi bi-file-earmark-pdf"></i> Download Report
-                    </a>
+                <div class="section-header">
+                    <div class="section-icon"><i class="bi bi-person-badge"></i></div>
+                    <h5>Your Profile</h5>
                 </div>
+                <div class="profile-field">
+                    <span class="profile-label">Full Name</span>
+                    <span class="profile-value">{{ user.first_name }} {{ user.last_name }}</span>
+                </div>
+                <div class="profile-field">
+                    <span class="profile-label">Email</span>
+                    <span class="profile-value">{{ user.email }}</span>
+                </div>
+                {% if user.phone_number %}
+                <div class="profile-field">
+                    <span class="profile-label">Phone</span>
+                    <span class="profile-value">{{ user.phone_number }}</span>
+                </div>
+                {% endif %}
+                {% if user.blood_group %}
+                <div class="profile-field">
+                    <span class="profile-label">Blood Group</span>
+                    <span class="profile-value"><span class="badge bg-primary">{{ user.blood_group }}</span></span>
+                </div>
+                {% endif %}
+                {% if user.date_of_birth %}
+                <div class="profile-field">
+                    <span class="profile-label">Date of Birth</span>
+                    <span class="profile-value">{{ user.date_of_birth }}</span>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
     <!-- Medicine Reminders -->
-    <div class="col-md-8 mb-4">
-        <div class="card shadow-sm border-0 rounded-3 h-100">
+    <div class="col-md-8 mb-2">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.2s;">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-                    <h5 class="card-title fw-bold mb-0">
-                        <i class="bi bi-capsule text-primary me-2"></i>Medicine Reminders
-                    </h5>
-                    <div>
-                        <a href="{% url 'ocr:upload' %}" class="btn btn-sm btn-outline-primary me-2">
-                            <i class="bi bi-camera me-1"></i> Scan Prescription
-                        </a>
-                        <a href="{% url 'add_reminder' %}" class="btn btn-sm btn-primary">
-                            <i class="bi bi-plus-circle me-1"></i> Add Reminder
-                        </a>
-                    </div>
+                <div class="section-header">
+                    <div class="section-icon"><i class="bi bi-capsule"></i></div>
+                    <h5 class="flex-grow-1">Medicine Reminders</h5>
+                    <span class="badge bg-primary rounded-pill">{{ reminders|length }}</span>
                 </div>
                 
                 {% if reminders %}
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
+                    <table class="table align-middle mb-0">
+                        <thead>
                             <tr>
                                 <th>Medicine</th>
                                 <th>Dosage</th>
@@ -64,13 +178,13 @@
                         <tbody>
                             {% for reminder in reminders %}
                             <tr>
-                                <td><span class="fw-semibold">{{ reminder.medicine_name }}</span></td>
-                                <td>{{ reminder.dosage }}</td>
-                                <td>{{ reminder.frequency }}</td>
-                                <td>{{ reminder.time|time:"H:i" }}</td>
+                                <td><span class="fw-bold">{{ reminder.medicine_name }}</span></td>
+                                <td class="text-muted">{{ reminder.dosage }}</td>
+                                <td class="text-muted">{{ reminder.frequency }}</td>
+                                <td><span class="fw-semibold">{{ reminder.time|time:"h:i A" }}</span></td>
                                 <td>
                                     {% if reminder.is_active %}
-                                    <span class="badge bg-success">Active</span>
+                                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Active</span>
                                     {% else %}
                                     <span class="badge bg-secondary">Inactive</span>
                                     {% endif %}
@@ -81,10 +195,15 @@
                     </table>
                 </div>
                 {% else %}
-                <div class="text-center py-4">
-                    <i class="bi bi-bell-slash text-muted fs-1 d-block mb-3"></i>
-                    <p class="text-muted mb-0">No active medicine reminders.</p>
-                    <p class="text-muted"><small>Click 'Add Reminder' to set one up.</small></p>
+                <div class="empty-state">
+                    <div style="width: 64px; height: 64px; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #F1F5F9;">
+                        <i class="bi bi-bell-slash fs-3" style="color: #CBD5E1;"></i>
+                    </div>
+                    <p class="mb-1 fw-semibold" style="color: #64748B;">No reminders yet</p>
+                    <p class="small mb-3">Scan a prescription or add a reminder to get started.</p>
+                    <a href="{% url 'add_reminder' %}" class="btn btn-sm btn-primary rounded-pill px-3">
+                        <i class="bi bi-plus-circle me-1"></i> Add Reminder
+                    </a>
                 </div>
                 {% endif %}
             </div>

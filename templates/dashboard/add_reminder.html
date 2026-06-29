@@ -6,23 +6,24 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm border-0 rounded-3 mt-4 mb-5">
-            <div class="card-body p-4 p-md-5">
-                <div class="d-flex align-items-center mb-4 border-bottom pb-3">
-                    <a href="{% url 'dashboard_home' %}" class="btn btn-sm btn-outline-secondary me-3">
-                        <i class="bi bi-arrow-left"></i> Back
-                    </a>
-                    <h3 class="fw-bold mb-0">Add Medicine Reminder</h3>
+        <div class="glass-card p-4 p-md-5 mt-4 mb-5 animate-in">
+            <div class="section-header mb-4">
+                <a href="{% url 'dashboard_home' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+                <div class="section-icon ms-2">
+                    <i class="bi bi-plus-circle"></i>
                 </div>
-                
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form|crispy }}
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary py-2 fw-semibold">Save Reminder</button>
-                    </div>
-                </form>
+                <h5>Add Medicine Reminder</h5>
             </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary py-2 fw-bold rounded-pill">Save Reminder</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

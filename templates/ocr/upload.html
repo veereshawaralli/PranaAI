@@ -6,46 +6,46 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm border-0 rounded-3 mt-4">
-            <div class="card-body p-4 p-md-5">
-                <div class="text-center mb-4">
-                    <i class="bi bi-file-earmark-image fs-1 text-primary"></i>
-                    <h2 class="fw-bold mt-2">Upload Prescription</h2>
-                    <p class="text-muted">Let our AI automatically extract your medicines</p>
+        <div class="glass-card p-4 p-md-5 mt-4 animate-in">
+            <div class="text-center mb-4">
+                <div class="auth-icon">
+                    <i class="bi bi-upc-scan"></i>
+                </div>
+                <h2 class="fw-bold mt-2" style="color: var(--medical-darker);">Upload Prescription</h2>
+                <p class="text-muted">Let our AI automatically extract your medicines</p>
+            </div>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="mb-4 text-center">
+                    <button type="button" id="start-camera-btn" class="btn btn-outline-primary rounded-pill px-4">
+                        <i class="bi bi-camera"></i> Use Live Camera
+                    </button>
                 </div>
                 
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    
-                    <div class="mb-4 text-center">
-                        <button type="button" id="start-camera-btn" class="btn btn-outline-info rounded-pill px-4">
-                            <i class="bi bi-camera"></i> Use Live Camera
+                <div id="camera-section" class="text-center mb-4" style="display: none;">
+                    <video id="camera-video" width="100%" autoplay playsinline class="camera-preview bg-dark mb-3" style="max-height: 400px; object-fit: contain;"></video>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" id="capture-btn" class="btn btn-success rounded-pill px-4">
+                            <i class="bi bi-camera-fill"></i> Capture
+                        </button>
+                        <button type="button" id="stop-camera-btn" class="btn btn-outline-secondary rounded-pill px-4">
+                            Cancel
                         </button>
                     </div>
-                    
-                    <div id="camera-section" class="text-center mb-4" style="display: none;">
-                        <video id="camera-video" width="100%" autoplay playsinline class="bg-dark rounded mb-3" style="max-height: 400px; object-fit: contain;"></video>
-                        <div>
-                            <button type="button" id="capture-btn" class="btn btn-success me-2 rounded-pill px-4">
-                                <i class="bi bi-camera-fill"></i> Capture Image
-                            </button>
-                            <button type="button" id="stop-camera-btn" class="btn btn-outline-secondary rounded-pill px-4">
-                                Cancel
-                            </button>
-                        </div>
-                        <canvas id="camera-canvas" style="display: none;"></canvas>
-                    </div>
-                    
-                    {{ form|crispy }}
-                    
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-magic"></i> Extract with AI
-                        </button>
-                        <a href="{% url 'dashboard_home' %}" class="btn btn-outline-secondary">Cancel</a>
-                    </div>
-                </form>
-            </div>
+                    <canvas id="camera-canvas" style="display: none;"></canvas>
+                </div>
+                
+                {{ form|crispy }}
+                
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold">
+                        <i class="bi bi-magic"></i> Extract with AI
+                    </button>
+                    <a href="{% url 'dashboard_home' %}" class="btn btn-outline-secondary rounded-pill">Cancel</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -59,13 +59,11 @@
     const cameraSection = document.getElementById('camera-section');
     const video = document.getElementById('camera-video');
     const canvas = document.getElementById('camera-canvas');
-    // Fallback to query selector if id_image is not found
     const fileInput = document.getElementById('id_image') || document.querySelector('input[type="file"]');
     let stream = null;
 
     startCameraBtn.addEventListener('click', async () => {
         try {
-            // Request camera, preferring the rear camera on mobile devices
             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
             video.srcObject = stream;
             cameraSection.style.display = 'block';
@@ -95,10 +93,7 @@
         canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
         
         canvas.toBlob(blob => {
-            // Create a File object from the blob
             const file = new File([blob], "camera_capture.jpg", { type: "image/jpeg" });
-            
-            // Use DataTransfer to put the file into the file input element
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(file);
             fileInput.files = dataTransfer.files;
