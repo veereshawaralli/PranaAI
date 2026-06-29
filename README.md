@@ -17,6 +17,11 @@
 ### 🎨 Premium User Interface
 - **Glassmorphism Design:** Frosted glass cards, fluid gradients, and refined typography (Plus Jakarta Sans).
 - **Responsive Dashboard:** A comprehensive, color-coded dashboard summarizing your health profile and reminders.
+<br>
+<p align="center">
+  <img src="static/images/dashboard-screenshot.png" alt="Prana AI Dashboard" width="700" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px;">
+</p>
+<br>
 - **Micro-Interactions:** Smooth `fadeInUp` animations, interactive hover states, and dynamic status indicators.
 
 ### 🤖 AI-Powered Chatbot
