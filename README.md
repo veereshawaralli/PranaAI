@@ -1,8 +1,14 @@
 # Prana AI 🏥✨
 
-![Prana AI Header](static/images/logo.png)
+<p align="center">
+  <img src="static/images/logo.png" alt="Prana AI Logo" width="150">
+</p>
 
 **Prana AI** is an intelligent, beautifully designed healthcare companion web application. Built with a premium "glassmorphism" aesthetic and powered by modern AI, it empowers users to digitize their medical records, extract insights from handwritten prescriptions, and converse with a smart health assistant.
+
+<p align="center">
+  <img src="static/images/hero-screenshot.png" alt="Prana AI Hero Section" width="800" style="border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+</p>
 
 ---
 
