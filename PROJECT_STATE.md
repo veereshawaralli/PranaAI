@@ -24,10 +24,18 @@
    - Image upload for X-Rays and MRIs.
    - Integration with Gemini AI for medical image analysis.
 
+6. **Prescription OCR** (`ocr` app)
+   - Integration with Gemini AI for reading handwritten meds.
+7. **AI Health Chatbot** (`chatbot` app)
+   - Gemini integration for conversational health assistant.
+8. **Health Reports Generation** (`reports` app)
+   - ReportLab PDF generation for patient data.
+9. **Nearby Hospitals & Pharmacies** (`locator` app)
+   - Google Maps JavaScript and Places API integration.
+   - HTML5 Geolocation routing to nearby medical facilities.
+
 ## Planned Modules
-1. **Prescription OCR**: EasyOCR for reading handwritten meds.
-2. **AI Health Chatbot**: Gemini/OpenAI integration.
-3. **Health Reports Generation**: ReportLab PDF.
+*(All original planned modules are now complete! Please suggest new features to add to the roadmap.)*
 
 ## Note for AI Assistant
 - Instead of scanning directories, read this file for a high-level overview.

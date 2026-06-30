@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'reports',
     'ocr',
     'disease_detection',
+    'locator',
     
     # Third party apps
     'crispy_forms',
@@ -154,3 +155,6 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 # Authentication Redirects
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
+
+# Google Maps API
+GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
