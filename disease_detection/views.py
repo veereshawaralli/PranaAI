@@ -54,7 +54,20 @@ def analyze_scan(request, scan_id):
         You are a highly advanced AI medical assistant. Please analyze this medical image carefully.
         Identify any visible anomalies, signs of diseases, or conditions. 
         Format your response nicely with markdown (e.g., use headings, bullet points).
-        IMPORTANT: Include a strong disclaimer at the very beginning stating that you are an AI assistant, this is a preliminary analysis, and the user must consult a qualified healthcare professional for a formal diagnosis.
+        
+        Based on the detected condition, please provide educational information broken down into these exact sections:
+        
+        1. General Medical Care: Typical treatment approaches and recovery expectations.
+        2. Homeopathy: Clearly label this as *Alternative Information Only*. Explicitly mention that scientific evidence for homeopathy differs from standard medical care, and its efficacy is not scientifically proven. 
+        3. Lifestyle Advice: Provide specific recommendations on:
+           - Foods to eat
+           - Foods to avoid
+           - Water intake
+           - Sleep recommendations
+           - Exercise suggestions
+           - Stress management
+
+        IMPORTANT: Include a strong disclaimer at the very beginning and end stating that this information is purely educational and not a substitute for professional medical advice. Always encourage consulting a qualified healthcare professional.
         """
         
         response = model.generate_content([prompt, img])

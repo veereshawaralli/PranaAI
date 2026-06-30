@@ -47,6 +47,18 @@
 - **Smart Tracking:** Keep track of all your active medications.
 - **Full CRUD Support:** Easily add, edit, and safely delete your medication reminders.
 
+### 🫁 AI Disease Detection
+- **Medical Imaging:** Upload X-Rays or MRIs for instant AI analysis using Gemini.
+- **Detailed Insights:** Receive comprehensive treatment recommendations, lifestyle advice, and identify visible anomalies.
+
+### 🗺️ Nearby Hospitals & Pharmacies
+- **Google Maps Integration:** Locate emergency services, hospitals, clinics, and pharmacies around you.
+- **Instant Routing:** One-click "Get Directions" utilizing the HTML5 Geolocation API.
+
+### 👨‍⚕️ Doctor Appointments
+- **Browse Specialists:** View detailed doctor profiles including specialties, experience, and consultation fees.
+- **Unified Booking Dashboard:** A complete portal for patients to book visits and doctors to manage and confirm appointments.
+
 ### 📄 Intelligent Health Reports (PDF)
 - **Premium PDF Generation:** Download beautifully formatted PDF reports summarizing your patient profile and active medications.
 - **Custom Branding:** Features transparent alternating row colors, premium typography, and an ultra-subtle, non-intrusive watermark of the Prana AI logo.
@@ -119,9 +131,10 @@ Make sure you have Python 3.x installed on your machine.
    ```
 
 4. **Environment Variables:**
-   Create a `.env` file in the root directory and add your Google Gemini API Key:
+   Create a `.env` file in the root directory and add your API Keys:
    ```env
-   GEMINI_API_KEY=your_api_key_here
+   GEMINI_API_KEY=your_gemini_api_key_here
+   GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
    ```
 
 5. **Run Database Migrations:**
