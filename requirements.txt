@@ -17,3 +17,4 @@ requests==2.32.3
 gunicorn==22.0.0
 dj-database-url==2.1.0
 white-noise==6.6.0
+Markdown==3.6

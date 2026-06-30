@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load markdown_extras %}
 
 {% block title %}Scan History - Prana AI{% endblock %}
 
@@ -32,7 +33,7 @@
                 </div>
                 <p class="text-muted small flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
                     {% if scan.result_text %}
-                        {{ scan.result_text|truncatechars:100 }}
+                        {{ scan.result_text|markdown|striptags|truncatechars:100 }}
                     {% else %}
                         <em>Analysis pending...</em>
                     {% endif %}

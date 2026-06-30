@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load markdown_extras %}
 
 {% block title %}Scan Analysis Result - Prana AI{% endblock %}
 
@@ -51,8 +52,8 @@
                             
                             <h5 class="fw-bold text-primary mb-3"><i class="bi bi-robot me-2"></i> AI Assistant's Analysis</h5>
                             
-                            <div class="markdown-content" style="white-space: pre-wrap; line-height: 1.6;">
-                                {{ scan.result_text }}
+                            <div class="markdown-content" style="line-height: 1.6;">
+                                {{ scan.result_text|markdown|safe }}
                             </div>
                         </div>
                         <div class="card-footer bg-transparent border-0 text-end p-3">
