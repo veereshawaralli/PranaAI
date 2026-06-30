@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'ocr',
     'disease_detection',
     'locator',
+    'appointments',
     
     # Third party apps
     'crispy_forms',

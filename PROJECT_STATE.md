@@ -33,6 +33,9 @@
 9. **Nearby Hospitals & Pharmacies** (`locator` app)
    - Google Maps JavaScript and Places API integration.
    - HTML5 Geolocation routing to nearby medical facilities.
+10. **Doctor Appointments** (`appointments` app)
+    - Patient booking system with doctors.
+    - Doctor profiles and appointment management dashboard.
 
 ## Planned Modules
 *(All original planned modules are now complete! Please suggest new features to add to the roadmap.)*
