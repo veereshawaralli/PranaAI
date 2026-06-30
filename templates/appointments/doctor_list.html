@@ -10,10 +10,10 @@
     </div>
 </div>
 
-<div class="row g-4 animate-in" style="animation-delay: 0.1s;">
+<div class="row g-4 mb-5 pb-5 animate-in" style="animation-delay: 0.1s;">
     {% for doctor in doctors %}
     <div class="col-md-6 col-lg-4">
-        <div class="glass-card h-100 text-center transition-hover d-flex flex-column">
+        <div class="glass-card p-4 h-100 text-center transition-hover d-flex flex-column">
             <div class="mb-3 mt-2">
                 {% if doctor.image %}
                 <img src="{{ doctor.image.url }}" alt="{{ doctor.user.get_full_name }}" class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
