@@ -16,17 +16,18 @@
    - Base template `templates/base.html` (Bootstrap 5)
    - Home landing page `templates/home.html`
    - Accounts templates in `templates/accounts/`
-
 4. **Dashboard & Medicine Reminders** (`dashboard` app)
    - Home Dashboard (`/dashboard/`) displaying user profile and reminders.
    - `MedicineReminder` model linked to user.
    - Add Reminder flow (`/dashboard/add-reminder/`).
+5. **AI Disease Detection** (`disease_detection` app)
+   - Image upload for X-Rays and MRIs.
+   - Integration with Gemini AI for medical image analysis.
 
 ## Planned Modules
-1. **AI Disease Detection**: PyTorch/OpenCV for X-Rays, MRIs.
-2. **Prescription OCR**: EasyOCR for reading handwritten meds.
-3. **AI Health Chatbot**: Gemini/OpenAI integration.
-4. **Health Reports Generation**: ReportLab PDF.
+1. **Prescription OCR**: EasyOCR for reading handwritten meds.
+2. **AI Health Chatbot**: Gemini/OpenAI integration.
+3. **Health Reports Generation**: ReportLab PDF.
 
 ## Note for AI Assistant
 - Instead of scanning directories, read this file for a high-level overview.
