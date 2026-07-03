@@ -1,0 +1,394 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Emergency SOS - Prana AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sos-hero {
+        text-align: center;
+        padding: 3rem 1rem 2rem;
+    }
+    .sos-button-wrapper {
+        position: relative;
+        display: inline-block;
+        margin: 2rem 0;
+    }
+    .sos-pulse-ring {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        border: 3px solid rgba(244, 63, 94, 0.3);
+        animation: sosPulse 2s ease-out infinite;
+    }
+    .sos-pulse-ring:nth-child(2) { animation-delay: 0.5s; }
+    .sos-pulse-ring:nth-child(3) { animation-delay: 1s; }
+
+    @keyframes sosPulse {
+        0% { transform: translate(-50%, -50%) scale(0.8); opacity: 1; }
+        100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+    }
+
+    .sos-btn {
+        width: 180px; height: 180px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #F43F5E, #E11D48);
+        color: white;
+        border: none;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 2.5rem;
+        letter-spacing: 2px;
+        cursor: pointer;
+        box-shadow: 0 15px 40px rgba(244, 63, 94, 0.4);
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 2;
+    }
+    .sos-btn:hover {
+        transform: scale(1.08);
+        box-shadow: 0 20px 50px rgba(244, 63, 94, 0.5);
+    }
+    .sos-btn:active {
+        transform: scale(0.95);
+    }
+    .sos-btn.sending {
+        animation: sosShake 0.5s ease-in-out;
+    }
+    @keyframes sosShake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px) rotate(-2deg); }
+        75% { transform: translateX(5px) rotate(2deg); }
+    }
+    .sos-btn-sub {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        opacity: 0.85;
+        margin-top: 0.25rem;
+    }
+
+    .sos-status {
+        display: none;
+        margin-top: 1.5rem;
+    }
+    .sos-status.show { display: block; }
+
+    .sos-status-card {
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        box-shadow: var(--shadow-md);
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .contact-card {
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .contact-card:hover {
+        box-shadow: var(--shadow-sm);
+        border-color: rgba(244, 63, 94, 0.15);
+    }
+    .contact-avatar {
+        width: 48px; height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+    .contact-info { flex: 1; min-width: 0; }
+    .contact-info h6 { margin: 0; font-weight: 700; color: #1E293B; }
+    .contact-info p { margin: 0; font-size: 0.82rem; color: #64748B; }
+    .contact-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+
+    .primary-badge {
+        display: inline-block;
+        background: rgba(244, 63, 94, 0.1);
+        color: #E11D48;
+        font-size: 0.65rem;
+        font-weight: 700;
+        padding: 0.2em 0.6em;
+        border-radius: 50rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .location-card {
+        background: #F8FAFC;
+        border: 1px dashed #CBD5E1;
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        text-align: center;
+        margin-top: 1rem;
+    }
+    .location-card i { color: var(--medical-primary); }
+
+    .alert-history-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #F1F5F9;
+    }
+    .alert-history-item:last-child { border-bottom: none; }
+    .alert-time-badge {
+        width: 44px; height: 44px;
+        border-radius: var(--radius-sm);
+        background: rgba(244, 63, 94, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #E11D48;
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- SOS Hero Section -->
+<div class="sos-hero animate-in">
+    <div class="d-inline-flex align-items-center gap-2 mb-2 px-3 py-1 rounded-pill" style="background: rgba(244,63,94,0.08); color: #E11D48; font-weight: 700; font-size: 0.82rem;">
+        <i class="bi bi-exclamation-triangle-fill"></i> Emergency Services
+    </div>
+    <h2 class="mt-2 mb-1" style="font-weight: 800; color: #1E293B;">Emergency SOS</h2>
+    <p class="text-muted mb-0">Press the button below to alert your emergency contacts with your live location.</p>
+
+    <!-- SOS Button -->
+    <div class="sos-button-wrapper">
+        <div class="sos-pulse-ring"></div>
+        <div class="sos-pulse-ring"></div>
+        <div class="sos-pulse-ring"></div>
+        <button class="sos-btn" id="sosBtn" onclick="triggerSOS()">
+            SOS
+            <span class="sos-btn-sub">TAP FOR HELP</span>
+        </button>
+    </div>
+
+    <!-- Location Info -->
+    <div class="location-card" id="locationCard">
+        <i class="bi bi-geo-alt fs-5 me-1"></i>
+        <span id="locationText" class="fw-semibold text-muted" style="font-size: 0.88rem;">Fetching your location...</span>
+    </div>
+
+    <!-- Status Message -->
+    <div class="sos-status" id="sosStatus">
+        <div class="sos-status-card">
+            <div id="statusIcon" class="mb-2"></div>
+            <h5 id="statusTitle" class="fw-bold"></h5>
+            <p id="statusMessage" class="text-muted mb-0" style="font-size: 0.9rem;"></p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <!-- Emergency Contacts -->
+    <div class="col-lg-7">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.1s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #F43F5E, #E11D48);">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <h5 class="flex-grow-1">Emergency Contacts</h5>
+                    <a href="{% url 'emergency:add_contact' %}" class="btn btn-sm btn-primary rounded-pill px-3">
+                        <i class="bi bi-plus-lg me-1"></i>Add
+                    </a>
+                </div>
+
+                {% if contacts %}
+                <div class="d-flex flex-column gap-2">
+                    {% for contact in contacts %}
+                    <div class="contact-card">
+                        <div class="contact-avatar" style="background: linear-gradient(135deg, 
+                            {% if contact.relationship == 'spouse' %}#8B5CF6, #7C3AED
+                            {% elif contact.relationship == 'parent' %}#F59E0B, #D97706
+                            {% elif contact.relationship == 'doctor' %}#14B8A6, #0D9488
+                            {% elif contact.relationship == 'sibling' %}#06B6D4, #0891B2
+                            {% else %}#6366F1, #4F46E5
+                            {% endif %});">
+                            {{ contact.name|first|upper }}
+                        </div>
+                        <div class="contact-info">
+                            <h6>
+                                {{ contact.name }}
+                                {% if contact.is_primary %}<span class="primary-badge ms-1">Primary</span>{% endif %}
+                            </h6>
+                            <p><i class="bi bi-telephone me-1"></i>{{ contact.phone_number }} · <i class="bi bi-envelope me-1"></i>{{ contact.email }}</p>
+                            <p><span class="badge bg-secondary">{{ contact.get_relationship_display }}</span></p>
+                        </div>
+                        <div class="contact-actions">
+                            <a href="{% url 'emergency:edit_contact' contact.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-1" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'emergency:delete_contact' contact.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div style="width: 64px; height: 64px; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #FEE2E2;">
+                        <i class="bi bi-person-plus fs-3" style="color: #F43F5E;"></i>
+                    </div>
+                    <p class="mb-1 fw-semibold" style="color: #64748B;">No emergency contacts yet</p>
+                    <p class="small mb-3">Add contacts who should be notified during an emergency.</p>
+                    <a href="{% url 'emergency:add_contact' %}" class="btn btn-sm btn-primary rounded-pill px-3">
+                        <i class="bi bi-plus-circle me-1"></i>Add First Contact
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Alerts -->
+    <div class="col-lg-5">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.2s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <h5>Recent Alerts</h5>
+                </div>
+
+                {% if recent_alerts %}
+                {% for alert in recent_alerts %}
+                <div class="alert-history-item">
+                    <div class="alert-time-badge">
+                        <i class="bi bi-exclamation-circle"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <p class="mb-0 fw-semibold" style="font-size: 0.88rem; color: #1E293B;">
+                            SOS Alert — {{ alert.contacts_notified }} contact{{ alert.contacts_notified|pluralize }} notified
+                        </p>
+                        <small class="text-muted">{{ alert.created_at|timesince }} ago</small>
+                    </div>
+                    <span class="badge {% if alert.status == 'sent' %}bg-success{% elif alert.status == 'failed' %}bg-danger{% else %}bg-secondary{% endif %}">
+                        {{ alert.get_status_display }}
+                    </span>
+                </div>
+                {% endfor %}
+                <div class="text-center mt-3">
+                    <a href="{% url 'emergency:sos_history' %}" class="text-teal-link" style="font-size: 0.85rem;">
+                        View All History <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                {% else %}
+                <div class="empty-state py-4">
+                    <i class="bi bi-shield-check fs-1"></i>
+                    <p class="mb-0 fw-semibold" style="color: #64748B;">No alerts sent yet</p>
+                    <p class="small text-muted">Your alert history will appear here.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let userLat = null, userLng = null, userAddress = 'Location not available';
+
+    // Get user's location on page load
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                userLat = pos.coords.latitude;
+                userLng = pos.coords.longitude;
+                document.getElementById('locationText').innerHTML = 
+                    `<i class="bi bi-check-circle-fill text-success me-1"></i> Location acquired: ${userLat.toFixed(5)}, ${userLng.toFixed(5)}`;
+                
+                // Try reverse geocoding via browser
+                userAddress = `Lat: ${userLat.toFixed(5)}, Lng: ${userLng.toFixed(5)}`;
+            },
+            (err) => {
+                document.getElementById('locationText').innerHTML = 
+                    `<i class="bi bi-exclamation-triangle text-warning me-1"></i> Location access denied. SOS will still work without location.`;
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    } else {
+        document.getElementById('locationText').textContent = 'Geolocation not supported by your browser.';
+    }
+
+    function triggerSOS() {
+        const btn = document.getElementById('sosBtn');
+        const statusDiv = document.getElementById('sosStatus');
+
+        // Confirm
+        if (!confirm('⚠️ Are you sure you want to send an SOS alert to all your emergency contacts?')) {
+            return;
+        }
+
+        btn.classList.add('sending');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i><span class="sos-btn-sub">SENDING...</span>';
+
+        fetch("{% url 'emergency:trigger_sos' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify({
+                latitude: userLat,
+                longitude: userLng,
+                address: userAddress,
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            statusDiv.classList.add('show');
+            if (data.success) {
+                document.getElementById('statusIcon').innerHTML = '<div style="width:64px;height:64px;margin:0 auto;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#D1FAE5;"><i class="bi bi-check-lg fs-2" style="color:#059669;"></i></div>';
+                document.getElementById('statusTitle').textContent = 'SOS Alert Sent!';
+                document.getElementById('statusTitle').style.color = '#059669';
+                document.getElementById('statusMessage').innerHTML = 
+                    `${data.contacts_notified} of ${data.total_contacts} contacts notified successfully.` +
+                    (data.map_link ? `<br><a href="${data.map_link}" target="_blank" class="text-teal-link mt-2 d-inline-block"><i class="bi bi-map me-1"></i>View Location on Maps</a>` : '');
+            } else {
+                document.getElementById('statusIcon').innerHTML = '<div style="width:64px;height:64px;margin:0 auto;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#FEE2E2;"><i class="bi bi-x-lg fs-2" style="color:#DC2626;"></i></div>';
+                document.getElementById('statusTitle').textContent = 'Alert Failed';
+                document.getElementById('statusTitle').style.color = '#DC2626';
+                document.getElementById('statusMessage').textContent = data.error || 'Something went wrong.';
+            }
+        })
+        .catch(err => {
+            statusDiv.classList.add('show');
+            document.getElementById('statusIcon').innerHTML = '<div style="width:64px;height:64px;margin:0 auto;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#FEE2E2;"><i class="bi bi-wifi-off fs-2" style="color:#DC2626;"></i></div>';
+            document.getElementById('statusTitle').textContent = 'Network Error';
+            document.getElementById('statusTitle').style.color = '#DC2626';
+            document.getElementById('statusMessage').textContent = 'Please check your internet connection and try again.';
+        })
+        .finally(() => {
+            btn.classList.remove('sending');
+            btn.disabled = false;
+            btn.innerHTML = 'SOS<span class="sos-btn-sub">TAP FOR HELP</span>';
+        });
+    }
+</script>
+<style>
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+{% endblock %}

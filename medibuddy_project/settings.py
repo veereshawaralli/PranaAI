@@ -52,6 +52,9 @@ INSTALLED_APPS = [
     'disease_detection',
     'locator',
     'appointments',
+    'emergency',
+    'analytics',
+    'symptom_checker',
     
     # Third party apps
     'crispy_forms',
@@ -159,3 +162,7 @@ LOGOUT_REDIRECT_URL = 'login'
 
 # Google Maps API
 GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+
+# Email Backend (console for development, configure SMTP for production)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'sos@pranaai.com'

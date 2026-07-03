@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Add Emergency Contact - Prana AI{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card" style="max-width: 520px;">
+        <div class="auth-icon" style="background: linear-gradient(135deg, #F43F5E, #E11D48);">
+            <i class="bi bi-person-plus-fill"></i>
+        </div>
+        <h2 class="text-center mb-1">Add Emergency Contact</h2>
+        <p class="text-center text-muted mb-4" style="font-size: 0.9rem;">This person will be notified when you trigger an SOS alert.</p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                {% if field.name == 'is_primary' %}
+                <div class="form-check mt-2">
+                    {{ field }}
+                    <label class="form-check-label" for="{{ field.id_for_label }}">
+                        <strong>{{ field.label }}</strong>
+                        <small class="text-muted d-block">{{ field.help_text }}</small>
+                    </label>
+                </div>
+                {% else %}
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary w-100 mt-2" style="background: linear-gradient(135deg, #F43F5E, #E11D48); border: none; box-shadow: 0 4px 14px rgba(244,63,94,0.3);">
+                <i class="bi bi-plus-circle me-1"></i>Add Contact
+            </button>
+            <a href="{% url 'emergency:sos_page' %}" class="btn btn-outline-secondary w-100 mt-2">
+                <i class="bi bi-arrow-left me-1"></i>Back to SOS
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

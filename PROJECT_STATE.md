@@ -36,9 +36,26 @@
 10. **Doctor Appointments** (`appointments` app)
     - Patient booking system with doctors.
     - Doctor profiles and appointment management dashboard.
+11. **Emergency SOS** (`emergency` app)
+    - One-tap panic button with pulsing red animation.
+    - HTML5 Geolocation captures live GPS coordinates.
+    - Sends email alerts to all emergency contacts with Google Maps link.
+    - Emergency contact CRUD management.
+    - SOS alert history log.
+12. **Health Analytics** (`analytics` app)
+    - Track vital signs: Weight, Blood Pressure, Blood Sugar, Heart Rate, Temperature, SpO2.
+    - Interactive Chart.js line/area charts with 30-day trends.
+    - AI-powered Health Score (0-100) via Gemini analysis.
+    - Metric summary cards with latest readings.
+13. **AI Symptom Checker** (`symptom_checker` app)
+    - Multi-step wizard: Body Area → Symptom Selection → Details → AI Analysis.
+    - Categorized symptom checkboxes per body area.
+    - Severity slider (1-10) and duration picker.
+    - Gemini AI analysis returning possible conditions, urgency level (Low/Medium/High/Emergency), recommendations, and home remedies.
+    - Symptom check history log.
 
 ## Planned Modules
-*(All original planned modules are now complete! Please suggest new features to add to the roadmap.)*
+*(All modules are now complete! 13 features implemented. Please suggest new features to add to the roadmap.)*
 
 ## Note for AI Assistant
 - Instead of scanning directories, read this file for a high-level overview.

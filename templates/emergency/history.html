@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}SOS Alert History - Prana AI{% endblock %}
+
+{% block content %}
+<div class="mb-4 animate-in">
+    <a href="{% url 'emergency:sos_page' %}" class="text-teal-link mb-3 d-inline-block">
+        <i class="bi bi-arrow-left me-1"></i>Back to SOS
+    </a>
+    <h2 style="font-weight: 800; color: #1E293B;">SOS Alert History</h2>
+    <p class="text-muted">A log of all emergency alerts you have triggered.</p>
+</div>
+
+{% if alerts %}
+<div class="dashboard-card animate-in" style="animation-delay: 0.1s;">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Location</th>
+                        <th>Contacts Notified</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alert in alerts %}
+                    <tr>
+                        <td>
+                            <span class="fw-bold">{{ alert.created_at|date:"M d, Y" }}</span><br>
+                            <small class="text-muted">{{ alert.created_at|time:"h:i A" }}</small>
+                        </td>
+                        <td>
+                            {% if alert.latitude and alert.longitude %}
+                            <a href="https://www.google.com/maps?q={{ alert.latitude }},{{ alert.longitude }}" target="_blank" class="text-teal-link">
+                                <i class="bi bi-geo-alt me-1"></i>{{ alert.latitude|floatformat:4 }}, {{ alert.longitude|floatformat:4 }}
+                            </a>
+                            {% else %}
+                            <span class="text-muted">Not available</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="fw-semibold">{{ alert.contacts_notified }}</span></td>
+                        <td>
+                            <span class="badge {% if alert.status == 'sent' %}bg-success{% elif alert.status == 'failed' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                {{ alert.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="dashboard-card animate-in">
+    <div class="card-body">
+        <div class="empty-state">
+            <i class="bi bi-shield-check fs-1"></i>
+            <p class="fw-semibold" style="color: #64748B;">No alerts sent yet</p>
+            <p class="small text-muted">Your SOS alert history will appear here.</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

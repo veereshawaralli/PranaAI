@@ -30,6 +30,9 @@ urlpatterns = [
     path('disease-detection/', include('disease_detection.urls')),
     path('locator/', include('locator.urls')),
     path('appointments/', include('appointments.urls')),
+    path('emergency/', include('emergency.urls')),
+    path('analytics/', include('analytics.urls')),
+    path('symptom-checker/', include('symptom_checker.urls')),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
 ]
 

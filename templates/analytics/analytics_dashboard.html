@@ -1,0 +1,546 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Health Analytics - Prana AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .metric-summary-card {
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: var(--radius-xl);
+        padding: 1.25rem;
+        transition: var(--transition);
+        text-align: center;
+    }
+    .metric-summary-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-3px);
+        border-color: transparent;
+    }
+    .metric-icon {
+        width: 48px; height: 48px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        margin: 0 auto 0.75rem;
+    }
+    .metric-value {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: #1E293B;
+    }
+    .metric-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #94A3B8;
+        margin-top: 0.25rem;
+    }
+
+    .chart-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50rem;
+        font-weight: 600;
+        font-size: 0.82rem;
+        border: 1.5px solid #E2E8F0;
+        background: white;
+        color: #64748B;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    .chart-tab:hover {
+        border-color: var(--medical-primary);
+        color: var(--medical-primary);
+    }
+    .chart-tab.active {
+        background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary));
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(20,184,166,0.25);
+    }
+
+    .health-score-ring {
+        position: relative;
+        width: 160px;
+        height: 160px;
+        margin: 0 auto;
+    }
+    .health-score-ring canvas {
+        transform: rotate(-90deg);
+    }
+    .health-score-value {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    .health-score-value .score-num {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 2.5rem;
+        line-height: 1;
+        color: #1E293B;
+    }
+    .health-score-value .score-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #94A3B8;
+    }
+
+    .ai-recommendation {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #F1F5F9;
+    }
+    .ai-recommendation:last-child { border-bottom: none; }
+    .ai-rec-icon {
+        width: 28px; height: 28px;
+        border-radius: 50%;
+        background: rgba(20,184,166,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--medical-primary);
+        flex-shrink: 0;
+        font-size: 0.8rem;
+    }
+    .ai-concern-icon {
+        background: rgba(244,63,94,0.1);
+        color: #E11D48;
+    }
+
+    .chart-wrapper {
+        position: relative;
+        height: 320px;
+        padding: 1rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="dashboard-welcome animate-in" style="background: linear-gradient(135deg, #0F766E 0%, #115E59 50%, #14B8A6 100%);">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2><i class="bi bi-graph-up-arrow me-2"></i>Health Analytics</h2>
+            <p>Track your vital signs, visualize trends, and get AI-powered health insights.</p>
+        </div>
+        <div class="col-auto d-none d-md-block" style="position: relative; z-index: 1;">
+            <a href="{% url 'analytics:add_metric' %}" class="btn btn-white rounded-pill px-4 py-2 fw-bold" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);">
+                <i class="bi bi-plus-circle me-1"></i>Log Reading
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Metric Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-2">
+        <div class="metric-summary-card animate-in" style="animation-delay: 0.05s;">
+            <div class="metric-icon" style="background: rgba(244,63,94,0.1); color: #F43F5E;">
+                <i class="bi bi-heart-pulse"></i>
+            </div>
+            <div class="metric-value">{% if latest_metrics.heart_rate %}{{ latest_metrics.heart_rate.value|floatformat:0 }}{% else %}--{% endif %}</div>
+            <div class="metric-label">Heart Rate</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="metric-summary-card animate-in" style="animation-delay: 0.1s;">
+            <div class="metric-icon" style="background: rgba(139,92,246,0.1); color: #8B5CF6;">
+                <i class="bi bi-speedometer2"></i>
+            </div>
+            <div class="metric-value">{% if latest_metrics.blood_pressure %}{{ latest_metrics.blood_pressure.value|floatformat:0 }}/{{ latest_metrics.blood_pressure.secondary_value|floatformat:0 }}{% else %}--{% endif %}</div>
+            <div class="metric-label">Blood Pressure</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="metric-summary-card animate-in" style="animation-delay: 0.15s;">
+            <div class="metric-icon" style="background: rgba(249,115,22,0.1); color: #F97316;">
+                <i class="bi bi-droplet"></i>
+            </div>
+            <div class="metric-value">{% if latest_metrics.blood_sugar %}{{ latest_metrics.blood_sugar.value|floatformat:0 }}{% else %}--{% endif %}</div>
+            <div class="metric-label">Blood Sugar</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="metric-summary-card animate-in" style="animation-delay: 0.2s;">
+            <div class="metric-icon" style="background: rgba(20,184,166,0.1); color: #14B8A6;">
+                <i class="bi bi-person-standing"></i>
+            </div>
+            <div class="metric-value">{% if latest_metrics.weight %}{{ latest_metrics.weight.value|floatformat:1 }}{% else %}--{% endif %}</div>
+            <div class="metric-label">Weight (kg)</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="metric-summary-card animate-in" style="animation-delay: 0.25s;">
+            <div class="metric-icon" style="background: rgba(6,182,212,0.1); color: #06B6D4;">
+                <i class="bi bi-thermometer-half"></i>
+            </div>
+            <div class="metric-value">{% if latest_metrics.temperature %}{{ latest_metrics.temperature.value|floatformat:1 }}{% else %}--{% endif %}</div>
+            <div class="metric-label">Temp (°F)</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="metric-summary-card animate-in" style="animation-delay: 0.3s;">
+            <div class="metric-icon" style="background: rgba(16,185,129,0.1); color: #10B981;">
+                <i class="bi bi-lungs"></i>
+            </div>
+            <div class="metric-value">{% if latest_metrics.spo2 %}{{ latest_metrics.spo2.value|floatformat:0 }}%{% else %}--{% endif %}</div>
+            <div class="metric-label">SpO2</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Chart Section -->
+    <div class="col-lg-8">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.15s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon"><i class="bi bi-bar-chart-line"></i></div>
+                    <h5 class="flex-grow-1">Trends</h5>
+                    <span class="badge bg-primary rounded-pill">{{ total_readings }} readings</span>
+                </div>
+
+                <!-- Chart Type Tabs -->
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <button class="chart-tab active" data-type="weight" onclick="switchChart('weight', this)">
+                        <i class="bi bi-person-standing"></i> Weight
+                    </button>
+                    <button class="chart-tab" data-type="blood_pressure" onclick="switchChart('blood_pressure', this)">
+                        <i class="bi bi-speedometer2"></i> BP
+                    </button>
+                    <button class="chart-tab" data-type="blood_sugar" onclick="switchChart('blood_sugar', this)">
+                        <i class="bi bi-droplet"></i> Sugar
+                    </button>
+                    <button class="chart-tab" data-type="heart_rate" onclick="switchChart('heart_rate', this)">
+                        <i class="bi bi-heart-pulse"></i> Heart Rate
+                    </button>
+                    <button class="chart-tab" data-type="temperature" onclick="switchChart('temperature', this)">
+                        <i class="bi bi-thermometer-half"></i> Temp
+                    </button>
+                    <button class="chart-tab" data-type="spo2" onclick="switchChart('spo2', this)">
+                        <i class="bi bi-lungs"></i> SpO2
+                    </button>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="healthChart"></canvas>
+                </div>
+
+                <div id="noDataMsg" class="empty-state py-3" style="display: none;">
+                    <i class="bi bi-graph-up fs-1"></i>
+                    <p class="fw-semibold" style="color: #64748B;">No data for this metric yet</p>
+                    <a href="{% url 'analytics:add_metric' %}" class="btn btn-sm btn-primary rounded-pill px-3">
+                        <i class="bi bi-plus-circle me-1"></i>Log a Reading
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Health Score -->
+    <div class="col-lg-4">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.25s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+                        <i class="bi bi-stars"></i>
+                    </div>
+                    <h5>AI Health Score</h5>
+                </div>
+
+                <div id="healthScoreContainer" class="text-center py-2">
+                    <div class="health-score-ring">
+                        <canvas id="scoreCanvas" width="160" height="160"></canvas>
+                        <div class="health-score-value">
+                            <div class="score-num" id="scoreNum">--</div>
+                            <div class="score-label">Health Score</div>
+                        </div>
+                    </div>
+                    <p id="scoreAssessment" class="text-muted mt-3 mb-3" style="font-size: 0.88rem;">Click below to analyze your health data with AI.</p>
+
+                    <button class="btn btn-primary rounded-pill px-4" id="getScoreBtn" onclick="getHealthScore()">
+                        <i class="bi bi-stars me-1"></i>Analyze Health
+                    </button>
+                </div>
+
+                <!-- AI Recommendations -->
+                <div id="recommendationsSection" style="display: none;" class="mt-3">
+                    <h6 class="fw-bold mb-2" style="font-size: 0.85rem; color: #475569;">
+                        <i class="bi bi-lightbulb me-1 text-warning"></i>Recommendations
+                    </h6>
+                    <div id="recommendationsList"></div>
+
+                    <div id="concernsSection" style="display: none;" class="mt-3">
+                        <h6 class="fw-bold mb-2" style="font-size: 0.85rem; color: #E11D48;">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Concerns
+                        </h6>
+                        <div id="concernsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Log -->
+        <div class="dashboard-card mt-4 animate-in" style="animation-delay: 0.35s;">
+            <div class="card-body text-center py-4">
+                <div style="width: 56px; height: 56px; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(20,184,166,0.1);">
+                    <i class="bi bi-plus-circle fs-3" style="color: var(--medical-primary);"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Log New Reading</h6>
+                <p class="text-muted small mb-3">Track your vitals regularly for better insights.</p>
+                <a href="{% url 'analytics:add_metric' %}" class="btn btn-primary rounded-pill px-4">
+                    <i class="bi bi-pencil-square me-1"></i>Add Metric
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    let healthChart = null;
+
+    const chartColors = {
+        weight: { border: '#14B8A6', bg: 'rgba(20,184,166,0.1)' },
+        blood_pressure: { border: '#8B5CF6', bg: 'rgba(139,92,246,0.1)', border2: '#C084FC' },
+        blood_sugar: { border: '#F97316', bg: 'rgba(249,115,22,0.1)' },
+        heart_rate: { border: '#F43F5E', bg: 'rgba(244,63,94,0.1)' },
+        temperature: { border: '#06B6D4', bg: 'rgba(6,182,212,0.1)' },
+        spo2: { border: '#10B981', bg: 'rgba(16,185,129,0.1)' },
+    };
+
+    const chartLabels = {
+        weight: 'Weight (kg)',
+        blood_pressure: 'Systolic (mmHg)',
+        blood_sugar: 'Blood Sugar (mg/dL)',
+        heart_rate: 'Heart Rate (bpm)',
+        temperature: 'Temperature (°F)',
+        spo2: 'SpO2 (%)',
+    };
+
+    function switchChart(type, btn) {
+        // Update active tab
+        document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        loadChart(type);
+    }
+
+    function loadChart(type) {
+        fetch(`{% url 'analytics:api_metrics' %}?type=${type}&days=30`)
+            .then(r => r.json())
+            .then(data => {
+                const canvas = document.getElementById('healthChart');
+                const noDataMsg = document.getElementById('noDataMsg');
+
+                if (data.labels.length === 0) {
+                    canvas.style.display = 'none';
+                    noDataMsg.style.display = 'block';
+                    return;
+                }
+
+                canvas.style.display = 'block';
+                noDataMsg.style.display = 'none';
+
+                if (healthChart) healthChart.destroy();
+
+                const colors = chartColors[type];
+                const datasets = [{
+                    label: chartLabels[type],
+                    data: data.values,
+                    borderColor: colors.border,
+                    backgroundColor: colors.bg,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: colors.border,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    borderWidth: 2.5,
+                }];
+
+                // Add diastolic line for BP
+                if (type === 'blood_pressure' && data.secondary_values.length > 0) {
+                    datasets.push({
+                        label: 'Diastolic (mmHg)',
+                        data: data.secondary_values,
+                        borderColor: colors.border2,
+                        backgroundColor: 'rgba(192,132,252,0.08)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: colors.border2,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        borderWidth: 2,
+                        borderDash: [5, 3],
+                    });
+                }
+
+                healthChart = new Chart(canvas, {
+                    type: 'line',
+                    data: { labels: data.labels, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: type === 'blood_pressure',
+                                position: 'top',
+                                labels: { font: { family: 'Inter', weight: '600', size: 12 } }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { family: 'Inter', size: 11 } }
+                            },
+                            y: {
+                                grid: { color: 'rgba(0,0,0,0.04)' },
+                                ticks: { font: { family: 'Inter', size: 11 } }
+                            }
+                        },
+                        interaction: { intersect: false, mode: 'index' },
+                    }
+                });
+            });
+    }
+
+    // Health Score Ring
+    function drawScoreRing(score) {
+        const canvas = document.getElementById('scoreCanvas');
+        const ctx = canvas.getContext('2d');
+        const size = 160;
+        const center = size / 2;
+        const radius = 65;
+        const lineWidth = 10;
+
+        ctx.clearRect(0, 0, size, size);
+
+        // Background ring
+        ctx.beginPath();
+        ctx.arc(center, center, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = '#F1F5F9';
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Score arc
+        if (score !== null && score !== undefined) {
+            const angle = (score / 100) * 2 * Math.PI;
+            let color;
+            if (score >= 80) color = '#10B981';
+            else if (score >= 60) color = '#F59E0B';
+            else if (score >= 40) color = '#F97316';
+            else color = '#F43F5E';
+
+            ctx.beginPath();
+            ctx.arc(center, center, radius, -Math.PI / 2, -Math.PI / 2 + angle);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+    }
+
+    function getHealthScore() {
+        const btn = document.getElementById('getScoreBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat spin me-1"></i>Analyzing...';
+
+        fetch("{% url 'analytics:health_score' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('scoreAssessment').textContent = data.error;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-stars me-1"></i>Try Again';
+                return;
+            }
+
+            if (data.score !== null && data.score !== undefined) {
+                // Animate score
+                let currentScore = 0;
+                const targetScore = data.score;
+                const scoreNum = document.getElementById('scoreNum');
+                const interval = setInterval(() => {
+                    currentScore += 1;
+                    scoreNum.textContent = currentScore;
+                    drawScoreRing(currentScore);
+                    if (currentScore >= targetScore) clearInterval(interval);
+                }, 20);
+
+                document.getElementById('scoreAssessment').textContent = data.assessment || '';
+            } else {
+                document.getElementById('scoreAssessment').textContent = data.message || 'Unable to calculate score.';
+            }
+
+            // Recommendations
+            if (data.recommendations && data.recommendations.length > 0) {
+                const section = document.getElementById('recommendationsSection');
+                section.style.display = 'block';
+                const list = document.getElementById('recommendationsList');
+                list.innerHTML = data.recommendations.map(r =>
+                    `<div class="ai-recommendation">
+                        <div class="ai-rec-icon"><i class="bi bi-check2"></i></div>
+                        <span style="font-size: 0.88rem; color: #334155;">${r}</span>
+                    </div>`
+                ).join('');
+            }
+
+            // Concerns
+            if (data.concerns && data.concerns.length > 0) {
+                const section = document.getElementById('concernsSection');
+                section.style.display = 'block';
+                const list = document.getElementById('concernsList');
+                list.innerHTML = data.concerns.map(c =>
+                    `<div class="ai-recommendation">
+                        <div class="ai-rec-icon ai-concern-icon"><i class="bi bi-exclamation"></i></div>
+                        <span style="font-size: 0.88rem; color: #991B1B;">${c}</span>
+                    </div>`
+                ).join('');
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i>Re-analyze';
+        })
+        .catch(err => {
+            document.getElementById('scoreAssessment').textContent = 'Network error. Please try again.';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-stars me-1"></i>Try Again';
+        });
+    }
+
+    // Initial load
+    drawScoreRing(null);
+    loadChart('weight');
+</script>
+<style>
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+{% endblock %}

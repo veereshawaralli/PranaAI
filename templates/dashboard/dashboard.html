@@ -88,26 +88,44 @@
 
 <!-- Quick Actions -->
 <div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-3 col-lg">
         <a href="{% url 'ocr:upload' %}" class="quick-action animate-in" style="animation-delay: 0.05s;">
             <div class="quick-action-icon qa-teal"><i class="bi bi-camera"></i></div>
             <span>Scan Prescription</span>
         </a>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-3 col-lg">
         <a href="{% url 'add_reminder' %}" class="quick-action animate-in" style="animation-delay: 0.1s;">
             <div class="quick-action-icon qa-blue"><i class="bi bi-plus-circle"></i></div>
             <span>Add Reminder</span>
         </a>
     </div>
-    <div class="col-6 col-md-3">
+    <div class="col-6 col-md-3 col-lg">
         <a href="{% url 'chatbot:chat' %}" class="quick-action animate-in" style="animation-delay: 0.15s;">
             <div class="quick-action-icon qa-purple"><i class="bi bi-robot"></i></div>
             <span>AI Chatbot</span>
         </a>
     </div>
-    <div class="col-6 col-md-3">
-        <a href="{% url 'edit_profile' %}" class="quick-action animate-in" style="animation-delay: 0.2s;">
+    <div class="col-6 col-md-3 col-lg">
+        <a href="{% url 'analytics:dashboard' %}" class="quick-action animate-in" style="animation-delay: 0.2s;">
+            <div class="quick-action-icon" style="background: rgba(16,185,129,0.1); color: #10B981;"><i class="bi bi-graph-up-arrow"></i></div>
+            <span>Health Analytics</span>
+        </a>
+    </div>
+    <div class="col-6 col-md-3 col-lg">
+        <a href="{% url 'symptom_checker:checker' %}" class="quick-action animate-in" style="animation-delay: 0.25s;">
+            <div class="quick-action-icon" style="background: rgba(99,102,241,0.1); color: #6366F1;"><i class="bi bi-search-heart"></i></div>
+            <span>Symptom Check</span>
+        </a>
+    </div>
+    <div class="col-6 col-md-3 col-lg">
+        <a href="{% url 'emergency:sos_page' %}" class="quick-action animate-in" style="animation-delay: 0.3s; border-color: rgba(244,63,94,0.2);">
+            <div class="quick-action-icon" style="background: rgba(244,63,94,0.1); color: #F43F5E;"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <span>Emergency SOS</span>
+        </a>
+    </div>
+    <div class="col-6 col-md-3 col-lg">
+        <a href="{% url 'edit_profile' %}" class="quick-action animate-in" style="animation-delay: 0.35s;">
             <div class="quick-action-icon qa-orange"><i class="bi bi-person-gear"></i></div>
             <span>Edit Profile</span>
         </a>

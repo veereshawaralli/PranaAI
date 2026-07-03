@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Delete Contact - Prana AI{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card" style="max-width: 480px;">
+        <div class="auth-icon" style="background: linear-gradient(135deg, #F43F5E, #E11D48);">
+            <i class="bi bi-trash-fill"></i>
+        </div>
+        <h2 class="text-center mb-3">Delete Contact?</h2>
+        <div class="alert alert-danger text-center">
+            <strong>{{ contact.name }}</strong> ({{ contact.get_relationship_display }}) will be permanently removed and will no longer receive SOS alerts.
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn w-100 mb-2" style="background: linear-gradient(135deg, #F43F5E, #E11D48); color: white; font-weight: 700; border: none;">
+                <i class="bi bi-trash me-1"></i>Yes, Delete
+            </button>
+            <a href="{% url 'emergency:sos_page' %}" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-left me-1"></i>Cancel
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

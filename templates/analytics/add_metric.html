@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Log Health Reading - Prana AI{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card" style="max-width: 520px;">
+        <div class="auth-icon">
+            <i class="bi bi-clipboard2-pulse-fill"></i>
+        </div>
+        <h2 class="text-center mb-1">Log Health Reading</h2>
+        <p class="text-center text-muted mb-4" style="font-size: 0.9rem;">Record a vital sign measurement to track your health over time.</p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <small class="text-muted">{{ field.help_text }}</small>
+                {% endif %}
+                {% if field.errors %}
+                <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="alert alert-info py-2 px-3" style="font-size: 0.82rem;" id="bpHint" >
+                <i class="bi bi-info-circle me-1"></i>
+                For <strong>Blood Pressure</strong>, enter Systolic in "Value" and Diastolic in "Secondary Value". For all other metrics, leave "Secondary Value" blank.
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-2">
+                <i class="bi bi-check-circle me-1"></i>Save Reading
+            </button>
+            <a href="{% url 'analytics:dashboard' %}" class="btn btn-outline-secondary w-100 mt-2">
+                <i class="bi bi-arrow-left me-1"></i>Back to Analytics
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Show/hide secondary value field based on metric type
+    const metricType = document.getElementById('metricType');
+    const secondaryField = document.getElementById('id_secondary_value');
+    const secondaryWrapper = secondaryField ? secondaryField.closest('.mb-3') : null;
+
+    function toggleSecondary() {
+        if (secondaryWrapper) {
+            if (metricType && metricType.value === 'blood_pressure') {
+                secondaryWrapper.style.display = 'block';
+            } else {
+                secondaryWrapper.style.display = 'none';
+            }
+        }
+    }
+
+    if (metricType) {
+        metricType.addEventListener('change', toggleSecondary);
+        toggleSecondary();
+    }
+</script>
+{% endblock %}

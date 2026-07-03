@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Symptom Check History - Prana AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .urgency-badge {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        padding: 0.4em 1em; border-radius: 50rem;
+        font-weight: 700; font-size: 0.78rem;
+    }
+    .urgency-low { background: #D1FAE5; color: #065F46; }
+    .urgency-medium { background: #FEF3C7; color: #92400E; }
+    .urgency-high { background: #FED7AA; color: #9A3412; }
+    .urgency-emergency { background: #FEE2E2; color: #991B1B; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4 animate-in">
+    <a href="{% url 'symptom_checker:checker' %}" class="text-teal-link mb-3 d-inline-block">
+        <i class="bi bi-arrow-left me-1"></i>Back to Symptom Checker
+    </a>
+    <h2 style="font-weight: 800; color: #1E293B;">Symptom Check History</h2>
+    <p class="text-muted">A log of all your past symptom analyses.</p>
+</div>
+
+{% if checks %}
+<div class="dashboard-card animate-in" style="animation-delay: 0.1s;">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Body Area</th>
+                        <th>Symptoms</th>
+                        <th>Severity</th>
+                        <th>Urgency</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for check in checks %}
+                    <tr>
+                        <td>
+                            <span class="fw-bold">{{ check.created_at|date:"M d, Y" }}</span><br>
+                            <small class="text-muted">{{ check.created_at|time:"h:i A" }}</small>
+                        </td>
+                        <td><span class="fw-semibold">{{ check.body_area }}</span></td>
+                        <td style="max-width: 250px;">
+                            {% for symptom in check.symptoms_list %}
+                            <span class="badge bg-light text-dark me-1 mb-1" style="font-size: 0.72rem; border: 1px solid #E2E8F0;">{{ symptom }}</span>
+                            {% endfor %}
+                        </td>
+                        <td><span class="fw-semibold">{{ check.severity }}/10</span></td>
+                        <td>
+                            {% if check.urgency_level %}
+                            <span class="urgency-badge urgency-{{ check.urgency_level }}">
+                                {{ check.get_urgency_level_display }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="dashboard-card animate-in">
+    <div class="card-body">
+        <div class="empty-state">
+            <i class="bi bi-search-heart fs-1"></i>
+            <p class="fw-semibold" style="color: #64748B;">No symptom checks yet</p>
+            <p class="small text-muted">Your analysis history will appear here.</p>
+            <a href="{% url 'symptom_checker:checker' %}" class="btn btn-sm btn-primary rounded-pill px-3">
+                <i class="bi bi-plus-circle me-1"></i>Start a Check
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

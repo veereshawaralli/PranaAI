@@ -1,0 +1,639 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Symptom Checker - Prana AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Wizard Steps */
+    .wizard-progress {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-bottom: 2.5rem;
+    }
+    .wizard-step-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .wizard-dot {
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.85rem;
+        background: #F1F5F9;
+        color: #94A3B8;
+        border: 2px solid #E2E8F0;
+        transition: var(--transition);
+    }
+    .wizard-dot.active {
+        background: linear-gradient(135deg, var(--medical-primary), var(--medical-secondary));
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(20,184,166,0.3);
+    }
+    .wizard-dot.completed {
+        background: #10B981;
+        color: white;
+        border-color: transparent;
+    }
+    .wizard-line {
+        width: 40px; height: 2px;
+        background: #E2E8F0;
+        align-self: center;
+        transition: background 0.3s ease;
+    }
+    .wizard-line.active { background: var(--medical-primary); }
+
+    .wizard-panel { display: none; }
+    .wizard-panel.active { display: block; animation: fadeInUp 0.4s ease forwards; }
+
+    /* Body Map */
+    .body-area-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+    .body-area-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1.25rem 0.75rem;
+        background: white;
+        border: 2px solid #E2E8F0;
+        border-radius: var(--radius-lg);
+        cursor: pointer;
+        transition: var(--transition);
+        text-align: center;
+    }
+    .body-area-btn:hover {
+        border-color: var(--medical-primary);
+        background: rgba(20,184,166,0.03);
+    }
+    .body-area-btn.selected {
+        border-color: var(--medical-primary);
+        background: var(--medical-light);
+        box-shadow: 0 0 0 4px rgba(20,184,166,0.1);
+    }
+    .body-area-btn i {
+        font-size: 1.5rem;
+        color: var(--medical-primary);
+    }
+    .body-area-btn span {
+        font-weight: 600;
+        font-size: 0.82rem;
+        color: #475569;
+    }
+
+    /* Symptom Checkboxes */
+    .symptom-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        background: white;
+        border: 1.5px solid #E2E8F0;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: var(--transition);
+        margin-bottom: 0.5rem;
+    }
+    .symptom-checkbox:hover {
+        border-color: var(--medical-primary);
+        background: rgba(20,184,166,0.02);
+    }
+    .symptom-checkbox.checked {
+        border-color: var(--medical-primary);
+        background: var(--medical-light);
+    }
+    .symptom-checkbox input { display: none; }
+    .symptom-checkbox .check-icon {
+        width: 24px; height: 24px;
+        border-radius: 6px;
+        border: 2px solid #CBD5E1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+        flex-shrink: 0;
+    }
+    .symptom-checkbox.checked .check-icon {
+        background: var(--medical-primary);
+        border-color: var(--medical-primary);
+        color: white;
+    }
+
+    /* Severity Slider */
+    .severity-slider {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #10B981, #F59E0B, #F43F5E);
+        outline: none;
+    }
+    .severity-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 24px; height: 24px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid var(--medical-primary);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        cursor: pointer;
+    }
+
+    /* Urgency Badges */
+    .urgency-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5em 1.2em;
+        border-radius: 50rem;
+        font-weight: 700;
+        font-size: 0.88rem;
+    }
+    .urgency-low { background: #D1FAE5; color: #065F46; }
+    .urgency-medium { background: #FEF3C7; color: #92400E; }
+    .urgency-high { background: #FED7AA; color: #9A3412; }
+    .urgency-emergency { background: #FEE2E2; color: #991B1B; }
+
+    /* Result Condition Card */
+    .condition-card {
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: var(--radius-md);
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+        transition: var(--transition);
+    }
+    .condition-card:hover { box-shadow: var(--shadow-sm); }
+
+    .probability-high { color: #DC2626; }
+    .probability-medium { color: #D97706; }
+    .probability-low { color: #059669; }
+
+    .result-section {
+        padding: 1rem 0;
+        border-bottom: 1px solid #F1F5F9;
+    }
+    .result-section:last-child { border-bottom: none; }
+
+    @media (max-width: 576px) {
+        .body-area-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="text-center mb-4 animate-in">
+    <div class="d-inline-flex align-items-center gap-2 mb-2 px-3 py-1 rounded-pill" style="background: rgba(20,184,166,0.08); color: var(--medical-primary); font-weight: 700; font-size: 0.82rem;">
+        <i class="bi bi-search-heart"></i> AI-Powered Analysis
+    </div>
+    <h2 style="font-weight: 800; color: #1E293B;">Symptom Checker</h2>
+    <p class="text-muted">Describe your symptoms and get instant AI-powered health insights.</p>
+</div>
+
+<!-- Wizard Progress -->
+<div class="wizard-progress animate-in" style="animation-delay: 0.1s;">
+    <div class="wizard-step-indicator">
+        <div class="wizard-dot active" id="dot1">1</div>
+    </div>
+    <div class="wizard-line" id="line1"></div>
+    <div class="wizard-step-indicator">
+        <div class="wizard-dot" id="dot2">2</div>
+    </div>
+    <div class="wizard-line" id="line2"></div>
+    <div class="wizard-step-indicator">
+        <div class="wizard-dot" id="dot3">3</div>
+    </div>
+    <div class="wizard-line" id="line3"></div>
+    <div class="wizard-step-indicator">
+        <div class="wizard-dot" id="dot4">4</div>
+    </div>
+</div>
+
+<!-- Main Wizard Card -->
+<div class="dashboard-card animate-in" style="animation-delay: 0.15s; max-width: 720px; margin: 0 auto;">
+    <div class="card-body" style="padding: 2rem;">
+
+        <!-- Step 1: Body Area -->
+        <div class="wizard-panel active" id="step1">
+            <h4 class="fw-bold mb-1" style="color: #1E293B;">Where do you feel discomfort?</h4>
+            <p class="text-muted mb-4" style="font-size: 0.9rem;">Select the primary area of concern.</p>
+
+            <div class="body-area-grid">
+                <div class="body-area-btn" onclick="selectBodyArea(this, 'Head & Neck')">
+                    <i class="bi bi-emoji-neutral"></i>
+                    <span>Head & Neck</span>
+                </div>
+                <div class="body-area-btn" onclick="selectBodyArea(this, 'Chest')">
+                    <i class="bi bi-heart-pulse"></i>
+                    <span>Chest</span>
+                </div>
+                <div class="body-area-btn" onclick="selectBodyArea(this, 'Abdomen')">
+                    <i class="bi bi-body-text"></i>
+                    <span>Abdomen</span>
+                </div>
+                <div class="body-area-btn" onclick="selectBodyArea(this, 'Back & Spine')">
+                    <i class="bi bi-person-standing"></i>
+                    <span>Back & Spine</span>
+                </div>
+                <div class="body-area-btn" onclick="selectBodyArea(this, 'Arms & Hands')">
+                    <i class="bi bi-hand-index"></i>
+                    <span>Arms & Hands</span>
+                </div>
+                <div class="body-area-btn" onclick="selectBodyArea(this, 'Legs & Feet')">
+                    <i class="bi bi-signpost-2"></i>
+                    <span>Legs & Feet</span>
+                </div>
+                <div class="body-area-btn" onclick="selectBodyArea(this, 'Skin')">
+                    <i class="bi bi-moisture"></i>
+                    <span>Skin</span>
+                </div>
+                <div class="body-area-btn" onclick="selectBodyArea(this, 'Eyes & Ears')">
+                    <i class="bi bi-eye"></i>
+                    <span>Eyes & Ears</span>
+                </div>
+                <div class="body-area-btn" onclick="selectBodyArea(this, 'General / Full Body')">
+                    <i class="bi bi-person"></i>
+                    <span>General</span>
+                </div>
+            </div>
+
+            <div class="text-end mt-4">
+                <button class="btn btn-primary rounded-pill px-4" onclick="goToStep(2)" id="step1Next" disabled>
+                    Next <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Symptoms Selection -->
+        <div class="wizard-panel" id="step2">
+            <h4 class="fw-bold mb-1" style="color: #1E293B;">What symptoms are you experiencing?</h4>
+            <p class="text-muted mb-4" style="font-size: 0.9rem;">Select all that apply, or type your own.</p>
+
+            <div id="symptomsList">
+                <!-- Populated by JS based on body area -->
+            </div>
+
+            <div class="mt-3">
+                <label class="form-label">Other symptoms (comma separated)</label>
+                <input type="text" class="form-control" id="customSymptoms" placeholder="e.g., fatigue, loss of appetite">
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-outline-secondary rounded-pill px-4" onclick="goToStep(1)">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </button>
+                <button class="btn btn-primary rounded-pill px-4" onclick="goToStep(3)" id="step2Next">
+                    Next <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Details -->
+        <div class="wizard-panel" id="step3">
+            <h4 class="fw-bold mb-1" style="color: #1E293B;">Tell us more</h4>
+            <p class="text-muted mb-4" style="font-size: 0.9rem;">Help our AI provide a more accurate assessment.</p>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Age</label>
+                    <input type="number" class="form-control" id="patientAge" placeholder="e.g., 30" min="1" max="120">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Gender</label>
+                    <select class="form-select" id="patientGender">
+                        <option value="">Prefer not to say</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">How long have you had these symptoms?</label>
+                    <select class="form-select" id="symptomDuration">
+                        <option value="Just started">Just started (today)</option>
+                        <option value="1-3 days">1-3 days</option>
+                        <option value="4-7 days">4-7 days</option>
+                        <option value="1-2 weeks">1-2 weeks</option>
+                        <option value="2-4 weeks">2-4 weeks</option>
+                        <option value="More than a month">More than a month</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Severity: <strong id="severityValue">5</strong>/10</label>
+                    <input type="range" class="severity-slider" id="severitySlider" min="1" max="10" value="5" oninput="document.getElementById('severityValue').textContent=this.value">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Additional Information</label>
+                    <textarea class="form-control" id="additionalInfo" rows="3" placeholder="Any medications, allergies, pre-existing conditions, or other relevant details..."></textarea>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button class="btn btn-outline-secondary rounded-pill px-4" onclick="goToStep(2)">
+                    <i class="bi bi-arrow-left me-1"></i>Back
+                </button>
+                <button class="btn btn-primary rounded-pill px-4" onclick="analyzeSymptoms()" id="analyzeBtn">
+                    <i class="bi bi-search-heart me-1"></i>Analyze Symptoms
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: Results -->
+        <div class="wizard-panel" id="step4">
+            <div id="loadingState" class="text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Analyzing...</span>
+                </div>
+                <h5 class="fw-bold">Analyzing your symptoms...</h5>
+                <p class="text-muted">Our AI is processing your information.</p>
+            </div>
+
+            <div id="resultState" style="display: none;">
+                <!-- Urgency -->
+                <div class="text-center mb-4">
+                    <span class="urgency-badge" id="urgencyBadge"></span>
+                    <p id="urgencyDesc" class="text-muted mt-2 mb-0" style="font-size: 0.88rem;"></p>
+                </div>
+
+                <!-- Possible Conditions -->
+                <div class="result-section">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-clipboard2-pulse me-1 text-primary"></i>Possible Conditions</h6>
+                    <div id="conditionsList"></div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="result-section">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-lightbulb me-1 text-warning"></i>Recommendations</h6>
+                    <div id="recsList"></div>
+                </div>
+
+                <!-- When to See Doctor -->
+                <div class="result-section">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-hospital me-1 text-danger"></i>When to See a Doctor</h6>
+                    <p id="doctorAdvice" style="font-size: 0.9rem; color: #334155;"></p>
+                </div>
+
+                <!-- Home Remedies -->
+                <div class="result-section" id="remediesSection">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-house-heart me-1" style="color: var(--medical-primary);"></i>Home Remedies</h6>
+                    <div id="remediesList"></div>
+                </div>
+
+                <!-- Disclaimer -->
+                <div class="alert alert-warning mt-3 py-2" style="font-size: 0.82rem;">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    <span id="disclaimerText"></span>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button class="btn btn-primary rounded-pill px-4 flex-grow-1" onclick="resetWizard()">
+                        <i class="bi bi-arrow-repeat me-1"></i>Check New Symptoms
+                    </button>
+                    <a href="{% url 'symptom_checker:history' %}" class="btn btn-outline-secondary rounded-pill px-3">
+                        <i class="bi bi-clock-history me-1"></i>History
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Checks -->
+{% if recent_checks %}
+<div class="dashboard-card mt-4 animate-in" style="animation-delay: 0.25s; max-width: 720px; margin: 2rem auto 0;">
+    <div class="card-body">
+        <div class="section-header">
+            <div class="section-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <h5>Recent Checks</h5>
+        </div>
+        {% for check in recent_checks %}
+        <div class="d-flex align-items-center gap-3 py-2 {% if not forloop.last %}border-bottom{% endif %}" style="border-color: #F1F5F9;">
+            <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background: rgba(20,184,166,0.08); display: flex; align-items: center; justify-content: center; color: var(--medical-primary); flex-shrink: 0;">
+                <i class="bi bi-search-heart"></i>
+            </div>
+            <div class="flex-grow-1">
+                <span class="fw-semibold" style="font-size: 0.88rem;">{{ check.body_area }}</span>
+                <small class="text-muted d-block">{{ check.created_at|timesince }} ago</small>
+            </div>
+            {% if check.urgency_level %}
+            <span class="urgency-badge urgency-{{ check.urgency_level }}" style="font-size: 0.72rem;">
+                {{ check.get_urgency_level_display }}
+            </span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let selectedBodyArea = '';
+    let currentStep = 1;
+
+    const symptomsByArea = {
+        'Head & Neck': ['Headache', 'Dizziness', 'Sore throat', 'Stiff neck', 'Runny nose', 'Congestion', 'Ear pain', 'Jaw pain', 'Swollen glands', 'Difficulty swallowing'],
+        'Chest': ['Chest pain', 'Shortness of breath', 'Cough', 'Heart palpitations', 'Wheezing', 'Chest tightness', 'Difficulty breathing', 'Coughing blood'],
+        'Abdomen': ['Stomach pain', 'Nausea', 'Vomiting', 'Diarrhea', 'Constipation', 'Bloating', 'Heartburn', 'Loss of appetite', 'Blood in stool', 'Cramps'],
+        'Back & Spine': ['Lower back pain', 'Upper back pain', 'Muscle spasms', 'Numbness', 'Tingling', 'Stiffness', 'Sciatica', 'Poor posture pain'],
+        'Arms & Hands': ['Joint pain', 'Swelling', 'Numbness', 'Weakness', 'Tingling', 'Tremors', 'Stiffness', 'Muscle cramps'],
+        'Legs & Feet': ['Leg pain', 'Swollen ankles', 'Knee pain', 'Muscle cramps', 'Numbness', 'Varicose veins', 'Difficulty walking', 'Foot pain'],
+        'Skin': ['Rash', 'Itching', 'Redness', 'Dry skin', 'Acne', 'Bruising', 'Swelling', 'Discoloration', 'Blisters', 'Hives'],
+        'Eyes & Ears': ['Blurred vision', 'Eye pain', 'Redness', 'Tearing', 'Light sensitivity', 'Hearing loss', 'Ringing in ears', 'Ear discharge'],
+        'General / Full Body': ['Fever', 'Fatigue', 'Weight loss', 'Weight gain', 'Night sweats', 'Chills', 'Weakness', 'Body aches', 'Insomnia', 'Anxiety', 'Depression'],
+    };
+
+    function selectBodyArea(btn, area) {
+        document.querySelectorAll('.body-area-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedBodyArea = area;
+        document.getElementById('step1Next').disabled = false;
+    }
+
+    function goToStep(step) {
+        // Validate before moving forward
+        if (step === 2 && !selectedBodyArea) return;
+
+        document.querySelectorAll('.wizard-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(`step${step}`).classList.add('active');
+
+        // Update dots
+        for (let i = 1; i <= 4; i++) {
+            const dot = document.getElementById(`dot${i}`);
+            dot.classList.remove('active', 'completed');
+            if (i < step) dot.classList.add('completed'), dot.innerHTML = '<i class="bi bi-check2"></i>';
+            else if (i === step) dot.classList.add('active'), dot.textContent = i;
+            else dot.textContent = i;
+        }
+
+        // Update lines
+        for (let i = 1; i <= 3; i++) {
+            const line = document.getElementById(`line${i}`);
+            line.classList.toggle('active', i < step);
+        }
+
+        // Populate symptoms for step 2
+        if (step === 2) {
+            populateSymptoms();
+        }
+
+        currentStep = step;
+    }
+
+    function populateSymptoms() {
+        const container = document.getElementById('symptomsList');
+        const symptoms = symptomsByArea[selectedBodyArea] || [];
+
+        container.innerHTML = symptoms.map(s => `
+            <label class="symptom-checkbox" onclick="toggleSymptom(this)">
+                <input type="checkbox" value="${s}">
+                <div class="check-icon"><i class="bi bi-check2" style="font-size: 0.75rem;"></i></div>
+                <span style="font-size: 0.9rem; font-weight: 500;">${s}</span>
+            </label>
+        `).join('');
+    }
+
+    function toggleSymptom(el) {
+        const cb = el.querySelector('input');
+        cb.checked = !cb.checked;
+        el.classList.toggle('checked', cb.checked);
+    }
+
+    function getSelectedSymptoms() {
+        const checked = [...document.querySelectorAll('#symptomsList input:checked')].map(i => i.value);
+        const custom = document.getElementById('customSymptoms').value
+            .split(',').map(s => s.trim()).filter(s => s);
+        return [...checked, ...custom];
+    }
+
+    function analyzeSymptoms() {
+        const symptoms = getSelectedSymptoms();
+        if (symptoms.length === 0) {
+            alert('Please select at least one symptom.');
+            return;
+        }
+
+        goToStep(4);
+
+        const btn = document.getElementById('analyzeBtn');
+        btn.disabled = true;
+
+        fetch("{% url 'symptom_checker:analyze' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify({
+                body_area: selectedBodyArea,
+                symptoms: symptoms,
+                additional_info: document.getElementById('additionalInfo').value,
+                duration: document.getElementById('symptomDuration').value,
+                severity: parseInt(document.getElementById('severitySlider').value),
+                age: parseInt(document.getElementById('patientAge').value) || null,
+                gender: document.getElementById('patientGender').value,
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('resultState').style.display = 'block';
+
+            if (data.error) {
+                document.getElementById('resultState').innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="bi bi-exclamation-circle fs-1 text-danger"></i>
+                        <h5 class="fw-bold mt-2">Analysis Failed</h5>
+                        <p class="text-muted">${data.error}</p>
+                        <button class="btn btn-primary rounded-pill px-4" onclick="resetWizard()">Try Again</button>
+                    </div>`;
+                return;
+            }
+
+            // Urgency
+            const urgency = data.urgency || 'medium';
+            const badge = document.getElementById('urgencyBadge');
+            badge.className = `urgency-badge urgency-${urgency}`;
+            const urgencyIcons = { low: '✅', medium: '⚠️', high: '🔶', emergency: '🚨' };
+            badge.innerHTML = `${urgencyIcons[urgency] || '⚠️'} ${urgency.charAt(0).toUpperCase() + urgency.slice(1)} Urgency`;
+            document.getElementById('urgencyDesc').textContent = data.urgency_description || '';
+
+            // Conditions
+            const conditionsHtml = (data.possible_conditions || []).map(c => `
+                <div class="condition-card">
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <h6 class="fw-bold mb-0" style="font-size: 0.95rem;">${c.name}</h6>
+                        <span class="badge probability-${(c.probability || '').toLowerCase()}" style="background: rgba(0,0,0,0.05); font-size: 0.72rem;">${c.probability || ''}</span>
+                    </div>
+                    <p class="text-muted mb-0" style="font-size: 0.85rem;">${c.description || ''}</p>
+                </div>
+            `).join('');
+            document.getElementById('conditionsList').innerHTML = conditionsHtml || '<p class="text-muted">No specific conditions identified.</p>';
+
+            // Recommendations
+            const recsHtml = (data.recommendations || []).map(r => `
+                <div class="d-flex align-items-start gap-2 mb-2">
+                    <i class="bi bi-check-circle-fill" style="color: var(--medical-primary); margin-top: 2px; flex-shrink: 0;"></i>
+                    <span style="font-size: 0.88rem;">${r}</span>
+                </div>
+            `).join('');
+            document.getElementById('recsList').innerHTML = recsHtml;
+
+            // Doctor advice
+            document.getElementById('doctorAdvice').textContent = data.when_to_see_doctor || '';
+
+            // Home remedies
+            const remediesHtml = (data.home_remedies || []).map(r => `
+                <div class="d-flex align-items-start gap-2 mb-2">
+                    <i class="bi bi-house-heart-fill" style="color: #10B981; margin-top: 2px; flex-shrink: 0;"></i>
+                    <span style="font-size: 0.88rem;">${r}</span>
+                </div>
+            `).join('');
+            document.getElementById('remediesList').innerHTML = remediesHtml;
+            document.getElementById('remediesSection').style.display = remediesHtml ? 'block' : 'none';
+
+            // Disclaimer
+            document.getElementById('disclaimerText').textContent = data.disclaimer || 'This is not a medical diagnosis. Always consult a healthcare professional.';
+        })
+        .catch(err => {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('resultState').style.display = 'block';
+            document.getElementById('resultState').innerHTML = `
+                <div class="text-center py-4">
+                    <i class="bi bi-wifi-off fs-1 text-danger"></i>
+                    <h5 class="fw-bold mt-2">Network Error</h5>
+                    <p class="text-muted">Please check your connection and try again.</p>
+                    <button class="btn btn-primary rounded-pill px-4" onclick="resetWizard()">Try Again</button>
+                </div>`;
+        })
+        .finally(() => {
+            btn.disabled = false;
+        });
+    }
+
+    function resetWizard() {
+        selectedBodyArea = '';
+        document.querySelectorAll('.body-area-btn').forEach(b => b.classList.remove('selected'));
+        document.getElementById('step1Next').disabled = true;
+        document.getElementById('customSymptoms').value = '';
+        document.getElementById('additionalInfo').value = '';
+        document.getElementById('severitySlider').value = 5;
+        document.getElementById('severityValue').textContent = '5';
+        document.getElementById('loadingState').style.display = 'block';
+        document.getElementById('resultState').style.display = 'none';
+        goToStep(1);
+    }
+</script>
+{% endblock %}
