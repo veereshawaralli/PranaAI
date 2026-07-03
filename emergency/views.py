@@ -55,16 +55,66 @@ def trigger_sos(request):
     user = request.user
     user_name = user.get_full_name() or user.username
 
-    subject = f"🆘 EMERGENCY SOS ALERT from {user_name} — Prana AI"
+    subject = f"🚨 URGENT: SOS Help Needed from {user_name} 🚨"
     message_body = (
-        f"⚠️ EMERGENCY SOS ALERT ⚠️\n\n"
-        f"{user_name} has triggered an emergency SOS alert.\n\n"
-        f"📍 {location_text}\n\n"
-        f"📞 Contact: {user.phone_number or 'Not available'}\n"
+        f"*** URGENT MEDICAL/SAFETY ALERT ***\n\n"
+        f"{user_name} has activated their SOS panic button and requires immediate assistance!\n\n"
+        f"📍 Location Information:\n{location_text}\n\n"
+        f"📞 Phone: {user.phone_number or 'Not available'}\n"
         f"📧 Email: {user.email}\n\n"
-        f"Please reach out to them immediately.\n\n"
-        f"— Prana AI Emergency System"
+        f"Please try to contact them right away. If they do not respond, consider contacting local authorities.\n\n"
+        f"Sent automatically via Prana AI Safety System"
     )
+
+    phone_display = user.phone_number or 'Not available'
+    map_html = f'<a href="{map_link}" style="display: inline-block; background-color: #dc2626; color: white; text-decoration: none; padding: 12px 25px; border-radius: 6px; font-weight: bold; margin-top: 10px; margin-bottom: 20px;">View Location on Map</a>' if map_link else ''
+    
+    html_message = f"""
+    <!DOCTYPE html>
+    <html>
+    <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; margin: 0; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+            <div style="background-color: #dc2626; color: white; padding: 20px; text-align: center;">
+                <h1 style="margin: 0; font-size: 24px; letter-spacing: 1px; color: white;">🚨 EMERGENCY SOS ALERT 🚨</h1>
+            </div>
+            <div style="padding: 30px; color: #334155;">
+                <div style="background-color: #fee2e2; border-left: 4px solid #dc2626; padding: 15px; border-radius: 4px; margin-bottom: 25px;">
+                    <p style="margin: 0; color: #991b1b; font-weight: 600; font-size: 16px;">URGENT: {user_name} requires immediate assistance!</p>
+                </div>
+                
+                <p style="font-size: 16px; line-height: 1.5; margin-bottom: 25px;">
+                    You are receiving this message because you are listed as an emergency contact for <strong style="color:#0f172a;">{user_name}</strong>. They have activated their SOS panic button.
+                </p>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; color: #64748b; font-size: 12px; text-transform: uppercase; margin-bottom: 5px;">📍 Last Known Location</div>
+                    <p style="font-size: 16px; margin: 0 0 10px 0; color: #0f172a; font-weight: 500;">{address}</p>
+                    {map_html}
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; color: #64748b; font-size: 12px; text-transform: uppercase; margin-bottom: 5px;">📞 Phone Number</div>
+                    <p style="font-size: 16px; margin: 0; color: #0f172a; font-weight: 500;">{phone_display}</p>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; color: #64748b; font-size: 12px; text-transform: uppercase; margin-bottom: 5px;">📧 Email Address</div>
+                    <p style="font-size: 16px; margin: 0; color: #0f172a; font-weight: 500;">{user.email}</p>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;">
+                
+                <p style="text-align: center; font-weight: 600; color: #dc2626; font-size: 18px; margin: 0;">
+                    Please try to contact them right away.<br>If they do not respond, consider contacting local authorities.
+                </p>
+            </div>
+            <div style="background-color: #f1f5f9; padding: 15px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0;">
+                Sent automatically via Prana AI Safety System
+            </div>
+        </div>
+    </body>
+    </html>
+    """
 
     notified_count = 0
     for contact in contacts:
@@ -74,10 +124,12 @@ def trigger_sos(request):
                 message_body,
                 django_settings.DEFAULT_FROM_EMAIL if hasattr(django_settings, 'DEFAULT_FROM_EMAIL') else 'sos@pranaai.com',
                 [contact.email],
-                fail_silently=True,
+                fail_silently=False,
+                html_message=html_message
             )
             notified_count += 1
-        except Exception:
+        except Exception as e:
+            print(f"Error sending SOS email to {contact.email}: {str(e)}")
             pass
 
     # Log the SOS alert
