@@ -44,10 +44,10 @@ def trigger_sos(request):
             'error': 'No emergency contacts configured. Please add at least one contact.'
         }, status=400)
 
-    # Build map link
+    # Build map link using OpenStreetMap
     if lat and lng:
-        map_link = f"https://www.google.com/maps?q={lat},{lng}"
-        location_text = f"Location: {address}\nGoogle Maps: {map_link}"
+        map_link = f"https://www.openstreetmap.org/?mlat={lat}&mlon={lng}#map=16/{lat}/{lng}"
+        location_text = f"Location: {address}\nOpenStreetMap: {map_link}"
     else:
         map_link = ''
         location_text = "Location could not be determined."

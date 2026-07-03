@@ -318,8 +318,21 @@
                 document.getElementById('locationText').innerHTML = 
                     `<i class="bi bi-check-circle-fill text-success me-1"></i> Location acquired: ${userLat.toFixed(5)}, ${userLng.toFixed(5)}`;
                 
-                // Try reverse geocoding via browser
-                userAddress = `Lat: ${userLat.toFixed(5)}, Lng: ${userLng.toFixed(5)}`;
+                // Reverse geocoding via Nominatim (OpenStreetMap)
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLng}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.display_name) {
+                            userAddress = data.display_name;
+                            document.getElementById('locationText').innerHTML = 
+                                `<i class="bi bi-check-circle-fill text-success me-1"></i> ${userAddress}`;
+                        } else {
+                            userAddress = `Lat: ${userLat.toFixed(5)}, Lng: ${userLng.toFixed(5)}`;
+                        }
+                    })
+                    .catch(err => {
+                        userAddress = `Lat: ${userLat.toFixed(5)}, Lng: ${userLng.toFixed(5)}`;
+                    });
             },
             (err) => {
                 document.getElementById('locationText').innerHTML = 

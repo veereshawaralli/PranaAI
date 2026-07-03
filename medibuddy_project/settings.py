@@ -160,8 +160,8 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
 
-# Google Maps API
-GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+# Google Maps API has been replaced by OpenStreetMap + Leaflet.js
+
 
 # Email Backend (console for development, configure SMTP for production)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

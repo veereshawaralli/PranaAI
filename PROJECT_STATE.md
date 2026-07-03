@@ -30,16 +30,17 @@
    - Gemini integration for conversational health assistant.
 8. **Health Reports Generation** (`reports` app)
    - ReportLab PDF generation for patient data.
-9. **Nearby Hospitals & Pharmacies** (`locator` app)
-   - Google Maps JavaScript and Places API integration.
-   - HTML5 Geolocation routing to nearby medical facilities.
-10. **Doctor Appointments** (`appointments` app)
-    - Patient booking system with doctors.
-    - Doctor profiles and appointment management dashboard.
+9. **Locator** (`locator` app)
+   - Uses OpenStreetMap, Leaflet.js, and Overpass API.
+   - Finds nearby hospitals, clinics, and pharmacies.
+   - Opens turn-by-route routing in OpenStreetMap.
+10. **Appointments** (`appointments` app)
+    - Allows users to book, manage, and cancel appointments with healthcare providers.
+    - Features a clean table view for all upcoming and past appointments.
 11. **Emergency SOS** (`emergency` app)
     - One-tap panic button with pulsing red animation.
     - HTML5 Geolocation captures live GPS coordinates.
-    - Sends email alerts to all emergency contacts with Google Maps link.
+    - Sends email alerts to all emergency contacts with OpenStreetMap link.
     - Emergency contact CRUD management.
     - SOS alert history log.
 12. **Health Analytics** (`analytics` app)

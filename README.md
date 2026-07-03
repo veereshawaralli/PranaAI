@@ -134,7 +134,6 @@ Make sure you have Python 3.x installed on your machine.
    Create a `.env` file in the root directory and add your API Keys:
    ```env
    GEMINI_API_KEY=your_gemini_api_key_here
-   GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
    ```
 
 5. **Run Database Migrations:**

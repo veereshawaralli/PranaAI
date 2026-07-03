@@ -4,11 +4,14 @@
 {% block title %}Nearby Hospitals & Pharmacies - Prana AI{% endblock %}
 
 {% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
     #map {
         height: 600px;
         width: 100%;
         border-radius: 1rem;
+        z-index: 1; /* Ensure leaflet map stays below modals/navbar */
     }
     .places-list {
         max-height: 600px;
@@ -31,7 +34,7 @@
             <i class="bi bi-geo-alt-fill text-white"></i>
         </div>
         <h2 class="fw-bold" style="color: var(--medical-darker);">Nearby Healthcare</h2>
-        <p class="text-muted">Find hospitals, clinics, and pharmacies near you instantly.</p>
+        <p class="text-muted">Find hospitals, clinics, and pharmacies near you instantly using OpenStreetMap.</p>
         
         <div class="d-flex justify-content-center gap-2 mt-3 flex-wrap">
             <button class="btn btn-outline-success rounded-pill filter-btn active" data-type="hospital,pharmacy,clinic">All Facilities</button>
@@ -40,13 +43,6 @@
         </div>
     </div>
 </div>
-
-{% if not google_maps_api_key %}
-<div class="alert alert-warning rounded-4 shadow-sm mb-4">
-    <i class="bi bi-exclamation-triangle-fill me-2"></i> 
-    <strong>API Key Missing:</strong> The Google Maps API key is missing. The map will load in development mode with a watermark, but it will still function! Add <code>GOOGLE_MAPS_API_KEY</code> to your `.env` file for production.
-</div>
-{% endif %}
 
 <div class="row g-4 animate-in" style="animation-delay: 0.1s;">
     <div class="col-lg-8">
@@ -72,16 +68,18 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
     let map;
-    let service;
-    let infowindow;
     let markers = [];
     let currentPos;
 
+    document.addEventListener("DOMContentLoaded", function() {
+        initMap();
+    });
+
     function initMap() {
-        infowindow = new google.maps.InfoWindow();
-        
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -90,29 +88,29 @@
                         lng: position.coords.longitude,
                     };
                     
-                    map = new google.maps.Map(document.getElementById("map"), {
-                        center: currentPos,
-                        zoom: 14,
-                        styles: [
-                            { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
-                        ]
-                    });
-                    
-                    // Add user marker
-                    new google.maps.Marker({
-                        position: currentPos,
-                        map: map,
-                        title: "You are here",
-                        icon: {
-                            path: google.maps.SymbolPath.CIRCLE,
-                            scale: 10,
-                            fillColor: "#0d6efd",
-                            fillOpacity: 1,
-                            strokeWeight: 2,
-                            strokeColor: "#ffffff"
-                        }
+                    // Initialize Leaflet Map
+                    map = L.map('map').setView([currentPos.lat, currentPos.lng], 14);
+
+                    // Add OpenStreetMap tiles
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+
+                    // Custom user marker
+                    let userIcon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: '<div style="background-color:#0d6efd; width:16px; height:16px; border-radius:50%; border:3px solid white; box-shadow:0 0 5px rgba(0,0,0,0.5);"></div>',
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10]
                     });
 
+                    L.marker([currentPos.lat, currentPos.lng], {icon: userIcon})
+                     .addTo(map)
+                     .bindPopup('<b>You are here</b>')
+                     .openPopup();
+
+                    // Initial search
                     searchPlaces(['hospital', 'pharmacy', 'clinic']);
                 },
                 (error) => {
@@ -129,32 +127,72 @@
         document.getElementById('places-container').innerHTML = `
             <div class="text-center text-muted my-5">
                 <div class="spinner-border text-success" role="status"></div>
-                <p class="mt-3">Searching nearby facilities...</p>
+                <p class="mt-3">Searching OpenStreetMap...</p>
             </div>
         `;
         
         clearMarkers();
         
-        let request = {
-            location: currentPos,
-            radius: '5000', // 5km
-            type: types
-        };
+        // Build Overpass API query for OSM
+        const typesStr = types.join('|');
+        const query = `
+            [out:json][timeout:25];
+            (
+              node["amenity"~"^(${typesStr})$"](around:5000,${currentPos.lat},${currentPos.lng});
+              way["amenity"~"^(${typesStr})$"](around:5000,${currentPos.lat},${currentPos.lng});
+            );
+            out center;
+        `;
 
-        service = new google.maps.places.PlacesService(map);
-        service.nearbySearch(request, callback);
+        fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            body: query
+        })
+        .then(response => response.json())
+        .then(data => {
+            callback(data.elements);
+        })
+        .catch(error => {
+            console.error("Overpass API error:", error);
+            document.getElementById('places-container').innerHTML = `
+                <div class="alert alert-danger rounded-4 shadow-sm m-3">
+                    <h5 class="fw-bold"><i class="bi bi-exclamation-octagon me-2"></i>API Error</h5>
+                    <p class="mb-0">Failed to fetch data from OpenStreetMap. Please try again later.</p>
+                </div>`;
+        });
     }
 
-    function callback(results, status) {
+    function callback(results) {
         const container = document.getElementById('places-container');
         container.innerHTML = '';
         
-        if (status == google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
-            // Sort by distance (roughly, places API returns them in a decent order, but we can just use the returned order)
-            results.forEach((place) => {
+        if (results && results.length > 0) {
+            // Filter out results without names if possible, though some clinics might lack them
+            // Sort by rough distance approximation (not exact but okay for short distances)
+            results.sort((a, b) => {
+                let latA = a.lat || a.center.lat;
+                let lonA = a.lon || a.center.lon;
+                let latB = b.lat || b.center.lat;
+                let lonB = b.lon || b.center.lon;
+                
+                let distA = Math.pow(latA - currentPos.lat, 2) + Math.pow(lonA - currentPos.lng, 2);
+                let distB = Math.pow(latB - currentPos.lat, 2) + Math.pow(lonB - currentPos.lng, 2);
+                return distA - distB;
+            });
+
+            // Limit to top 20 to avoid clutter
+            const topResults = results.slice(0, 20);
+
+            topResults.forEach((place) => {
                 createMarker(place);
                 addPlaceToList(place, container);
             });
+            
+            // Adjust map bounds to fit markers
+            if (markers.length > 0) {
+                let group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
         } else {
             container.innerHTML = `
                 <div class="text-center mt-5 text-muted">
@@ -166,43 +204,52 @@
     }
 
     function createMarker(place) {
-        if (!place.geometry || !place.geometry.location) return;
+        let lat = place.lat || place.center.lat;
+        let lon = place.lon || place.center.lon;
+        let name = place.tags.name || "Unnamed Facility";
+        let amenity = place.tags.amenity || "facility";
         
-        // Custom icons based on type
-        let iconUrl = "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
-        if (place.types.includes('pharmacy')) {
-            iconUrl = "http://maps.google.com/mapfiles/ms/icons/green-dot.png";
-        }
-        
-        const marker = new google.maps.Marker({
-            map,
-            position: place.geometry.location,
-            title: place.name,
-            icon: iconUrl,
-            animation: google.maps.Animation.DROP
+        // Choose color based on amenity
+        let color = '#dc3545'; // red for hospital
+        if (amenity === 'pharmacy') color = '#198754'; // green
+        else if (amenity === 'clinic') color = '#0dcaf0'; // info/blue
+
+        let customIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div style="background-color:${color}; width:16px; height:16px; border-radius:50%; border:2px solid white; box-shadow:0 0 5px rgba(0,0,0,0.5);"></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
         });
         
-        google.maps.event.addListener(marker, "click", () => {
-            infowindow.setContent(`
-                <div style="padding: 5px;">
-                    <strong style="color: #333; font-size: 1.1em;">${place.name}</strong><br>
-                    <span style="color: #666; font-size: 0.9em;">${place.vicinity}</span>
-                </div>
-            `);
-            infowindow.open(map, marker);
-        });
+        let marker = L.marker([lat, lon], {icon: customIcon}).addTo(map);
+        
+        let address = place.tags['addr:street'] || place.tags['addr:full'] || 'Address unknown';
+        if (place.tags['addr:city']) address += `, ${place.tags['addr:city']}`;
+
+        marker.bindPopup(`
+            <div style="padding: 2px;">
+                <strong style="color: #333; font-size: 1.1em;">${name}</strong><br>
+                <span style="color: #666; font-size: 0.9em; text-transform: capitalize;">${amenity.replace('_', ' ')}</span><br>
+                <span style="color: #666; font-size: 0.85em;">${address}</span>
+            </div>
+        `);
         
         markers.push(marker);
     }
     
     function clearMarkers() {
         for (let i = 0; i < markers.length; i++) {
-            markers[i].setMap(null);
+            map.removeLayer(markers[i]);
         }
         markers = [];
     }
 
     function addPlaceToList(place, container) {
+        let lat = place.lat || place.center.lat;
+        let lon = place.lon || place.center.lon;
+        let name = place.tags.name || "Unnamed Facility";
+        let amenity = place.tags.amenity || "facility";
+
         const div = document.createElement('div');
         div.className = 'place-item card border-0 rounded-4 shadow-sm mb-3 bg-white';
         
@@ -210,22 +257,20 @@
         let badgeColor = 'danger';
         let badgeText = 'Hospital';
         
-        if (place.types.includes('pharmacy')) {
+        if (amenity === 'pharmacy') {
             icon = '<i class="bi bi-capsule text-success fs-4"></i>';
             badgeColor = 'success';
             badgeText = 'Pharmacy';
-        } else if (place.types.includes('clinic')) {
+        } else if (amenity === 'clinic') {
             icon = '<i class="bi bi-heart-pulse text-info fs-4"></i>';
             badgeColor = 'info';
             badgeText = 'Clinic';
         }
         
-        // Route destination format
-        const dest = `${place.geometry.location.lat()},${place.geometry.location.lng()}`;
-        const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+        // Route destination format via OpenStreetMap OSRM routing
+        const dirUrl = `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${currentPos.lat}%2C${currentPos.lng}%3B${lat}%2C${lon}`;
         
-        // Rating
-        const rating = place.rating ? `<span class="badge bg-light text-dark border"><i class="bi bi-star-fill text-warning me-1"></i>${place.rating}</span>` : '';
+        let address = place.tags['addr:street'] || 'Address not listed';
         
         div.innerHTML = `
             <div class="card-body p-3 d-flex align-items-center gap-3">
@@ -233,18 +278,29 @@
                     ${icon}
                 </div>
                 <div class="flex-grow-1 overflow-hidden">
-                    <h6 class="fw-bold mb-1 text-truncate" title="${place.name}">${place.name}</h6>
+                    <h6 class="fw-bold mb-1 text-truncate" title="${name}">${name}</h6>
                     <div class="d-flex align-items-center gap-2 mb-1">
                         <span class="badge bg-${badgeColor} bg-opacity-10 text-${badgeColor}">${badgeText}</span>
-                        ${rating}
                     </div>
-                    <p class="text-muted small mb-0 text-truncate" title="${place.vicinity}"><i class="bi bi-geo-alt me-1"></i>${place.vicinity}</p>
+                    <p class="text-muted small mb-0 text-truncate" title="${address}"><i class="bi bi-geo-alt me-1"></i>${address}</p>
                 </div>
-                <a href="${dirUrl}" target="_blank" class="btn btn-success rounded-circle shadow-sm" style="width: 45px; height: 45px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" title="Get Directions">
+                <a href="${dirUrl}" target="_blank" class="btn btn-success rounded-circle shadow-sm" style="width: 45px; height: 45px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" title="Get Directions on OSM">
                     <i class="bi bi-cursor-fill"></i>
                 </a>
             </div>
         `;
+        
+        // Add click listener to center map on this place
+        div.style.cursor = 'pointer';
+        div.addEventListener('click', (e) => {
+            // Don't trigger if they clicked the direction button
+            if (e.target.closest('a')) return;
+            map.setView([lat, lon], 16);
+            // find the marker and open popup
+            const marker = markers.find(m => m.getLatLng().lat === lat && m.getLatLng().lng === lon);
+            if(marker) marker.openPopup();
+        });
+
         container.appendChild(div);
     }
 
@@ -278,7 +334,4 @@
         });
     });
 </script>
-
-<!-- Load Google Maps API safely -->
-<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places&callback=initMap"></script>
 {% endblock %}
