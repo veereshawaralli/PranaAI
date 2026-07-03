@@ -137,9 +137,16 @@ Make sure you have Python 3.x installed on your machine.
    ```
 
 4. **Environment Variables:**
-   Create a `.env` file in the root directory and add your API Keys:
+   Create a `.env` file in the root directory and add your API Keys and Email Settings (required for SOS Alerts):
    ```env
    GEMINI_API_KEY=your_gemini_api_key_here
+   
+   # Email Settings (for SOS Alerts) - e.g., using Gmail
+   EMAIL_HOST="smtp.gmail.com"
+   EMAIL_PORT="587"
+   EMAIL_HOST_USER="your-email@gmail.com"
+   EMAIL_HOST_PASSWORD="your-16-char-app-password"
+   EMAIL_USE_TLS="True"
    ```
 
 5. **Run Database Migrations:**
