@@ -4,7 +4,7 @@
   <img src="static/images/logo.png" alt="Prana AI Logo" width="150">
 </p>
 
-**Prana AI (Swasthya Sahayak)** is an intelligent, beautifully designed healthcare companion web application. Built with a premium "glassmorphism" aesthetic and powered by modern AI, it empowers users to digitize their medical records, extract insights from handwritten prescriptions, and converse with a smart health assistant.
+**Prana AI (Swasthya Sahayak)** is an intelligent, beautifully designed healthcare companion web application. Built with a premium "glassmorphism" aesthetic and powered by modern AI, it empowers users to digitize their medical records, extract insights from handwritten prescriptions, track their vitals, and converse with a smart health assistant.
 
 <p align="center">
   <img src="static/images/hero-screenshot.png" alt="Prana AI Hero Section" width="800" style="border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -14,28 +14,22 @@
 
 ## 🌟 Key Features
 
-### 🎨 Premium User Interface
-- **Glassmorphism Design:** Frosted glass cards, fluid gradients, and refined typography (Plus Jakarta Sans).
-- **Responsive Dashboard:** A comprehensive, color-coded dashboard summarizing your health profile and reminders.
-<br>
-<p align="center">
-  <img src="static/images/dashboard-screenshot.png" alt="Prana AI Dashboard" width="700" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px;">
-</p>
-<br>
-- **Micro-Interactions:** Smooth `fadeInUp` animations, interactive hover states, and dynamic status indicators.
-
-### 🤖 AI-Powered Chatbot
+### 🤖 AI-Powered Chat Assistant
 - **Gemini AI Integration:** Consult our smart health assistant for queries regarding symptoms, general well-being, and medical advice.
-- **Modern Chat Interface:** Modeled after premium messaging apps with dynamic typing indicators and clickable suggestion pills.
+- **Modern Interface:** Dynamic typing indicators, suggested questions, and a premium chat UI.
 <br>
 <p align="center">
   <img src="static/images/chatbot-screenshot.png" alt="Prana AI Chatbot" width="700" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px;">
 </p>
 <br>
 
-### 📸 Prescription Scanner (OCR)
+### 🩺 AI Symptom Checker
+- **Intelligent Diagnosis:** Input your symptoms and let the AI analyze them to provide a preliminary diagnosis.
+- **Next Steps:** Get immediate recommendations on whether you should rest at home or consult a doctor.
+
+### 📸 Smart Prescription Scanner (OCR)
 - **Live Camera & Upload:** Seamlessly digitize handwritten prescriptions by taking a live photo or uploading a document.
-- **Smart Data Extraction:** Automatically reads and extracts medicine names, dosages, and schedules.
+- **Data Extraction:** Automatically reads and extracts medicine names, dosages, and schedules.
 <br>
 <p align="center">
   <img src="static/images/scan-screenshot.png" alt="Prana AI Prescription OCR Scanner" width="48%" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px;">
@@ -43,27 +37,37 @@
 </p>
 <br>
 
-### 💊 Medication Reminders
-- **Smart Tracking:** Keep track of all your active medications.
-- **Full CRUD Support:** Easily add, edit, and safely delete your medication reminders.
-
 ### 🫁 AI Disease Detection
-- **Medical Imaging:** Upload X-Rays or MRIs for instant AI analysis using Gemini.
-- **Detailed Insights:** Receive comprehensive treatment recommendations, lifestyle advice, and identify visible anomalies.
+- **Medical Imaging:** Upload Chest X-Rays for instant deep learning analysis.
+- **Tuberculosis & Pneumonia:** Detects signs of severe respiratory diseases and provides actionable insights.
 
-### 🗺️ Nearby Hospitals & Pharmacies
-- **Google Maps Integration:** Locate emergency services, hospitals, clinics, and pharmacies around you.
-- **Instant Routing:** One-click "Get Directions" utilizing the HTML5 Geolocation API.
+### 🗺️ Nearby Healthcare (100% Free Open-Source)
+- **OpenStreetMap & Leaflet.js:** Locate emergency services, hospitals, clinics, and pharmacies around you without any paid Google API dependencies.
+- **Overpass API Integration:** Live querying of nearby healthcare facilities with instant turn-by-turn routing links.
 
 ### 👨‍⚕️ Doctor Appointments
 - **Browse Specialists:** View detailed doctor profiles including specialties, experience, and consultation fees.
 - **Unified Booking Dashboard:** A complete portal for patients to book visits and doctors to manage and confirm appointments.
 
-### 📄 Intelligent Health Reports (PDF)
-- **Premium PDF Generation:** Download beautifully formatted PDF reports summarizing your patient profile and active medications.
-- **Custom Branding:** Features transparent alternating row colors, premium typography, and an ultra-subtle, non-intrusive watermark of the Prana AI logo.
+### 📊 Health Analytics & PDF Reports
+- **Vital Tracking:** Log your weight, blood pressure, blood sugar, heart rate, temperature, and SpO2.
+- **Interactive Charts:** Visualize your health trends over time using Chart.js.
+- **AI Health Score:** Get an AI-generated health score based on your recent vitals.
+- **Premium PDF Reports:** Download beautifully formatted PDF reports summarizing your health profile.
 
----
+### 🚨 Emergency SOS Panic Button
+- **One-Tap SOS:** Trigger an emergency alert to instantly notify your designated emergency contacts.
+- **Live GPS Tracking:** Emails sent to emergency contacts include an OpenStreetMap link to your exact live GPS location using the HTML5 Geolocation API.
+
+### 🎨 Premium User Interface
+- **Glassmorphism Design:** Frosted glass cards, fluid gradients, and refined typography (Plus Jakarta Sans).
+- **Responsive Dashboard:** A comprehensive, color-coded dashboard summarizing your health profile.
+<br>
+<p align="center">
+  <img src="static/images/dashboard-screenshot.png" alt="Prana AI Dashboard" width="700" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px;">
+</p>
+<br>
+- **Micro-Interactions:** Smooth `fadeInUp` animations, interactive hover states, and dynamic status indicators.
 
 ---
 
@@ -97,8 +101,10 @@ Prana AI is more than just an app; it's your personal health advocate available 
 | **Backend Framework** | Python, Django |
 | **Database** | SQLite3 (Configurable to PostgreSQL) |
 | **Frontend Styling** | HTML5, Vanilla CSS3 (Custom Glassmorphism Tokens), Bootstrap 5 |
+| **Maps & Routing** | OpenStreetMap, Leaflet.js, Overpass API, Nominatim |
 | **Icons & Fonts** | Bootstrap Icons, Inter, Plus Jakarta Sans |
-| **AI Integration** | Google Gemini API (Chatbot & OCR) |
+| **AI Integration** | Google Gemini API (Chatbot, OCR, Disease Detection, Analytics, Symptom Checker) |
+| **Data Visualization**| Chart.js |
 | **PDF Generation** | ReportLab |
 
 ---
