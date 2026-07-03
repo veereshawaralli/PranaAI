@@ -15,7 +15,8 @@
 ## 🌟 Key Features
 
 ### 🤖 AI-Powered Chat Assistant
-- **Gemini AI Integration:** Consult our smart health assistant for queries regarding symptoms, general well-being, and medical advice.
+- **Gemini & Groq AI Engines:** High-availability dual-engine setup. If Gemini hits a rate limit, the system instantly and transparently falls back to Groq's high-speed LLaMA 3 models.
+- **Real-Time Streaming:** Enjoy an instant, ChatGPT-like experience with real-time token streaming to the browser.
 - **Modern Interface:** Dynamic typing indicators, suggested questions, and a premium chat UI.
 <br>
 <p align="center">
@@ -29,7 +30,8 @@
 
 ### 📸 Smart Prescription Scanner (OCR)
 - **Live Camera & Upload:** Seamlessly digitize handwritten prescriptions by taking a live photo or uploading a document.
-- **Data Extraction:** Automatically reads and extracts medicine names, dosages, and schedules.
+- **Data Extraction & Fallbacks:** Automatically reads and extracts medicine names, dosages, and schedules. If Gemini Vision fails, instantly falls back to Groq's LLaMA 3.2 Vision model.
+- **Dynamic Loading UX:** Elegant client-side loading overlays provide immediate feedback during heavy image processing.
 <br>
 <p align="center">
   <img src="static/images/scan-screenshot.png" alt="Prana AI Prescription OCR Scanner" width="48%" style="border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-top: 10px;">
@@ -103,7 +105,7 @@ Prana AI is more than just an app; it's your personal health advocate available 
 | **Frontend Styling** | HTML5, Vanilla CSS3 (Custom Glassmorphism Tokens), Bootstrap 5 |
 | **Maps & Routing** | OpenStreetMap, Leaflet.js, Overpass API, Nominatim |
 | **Icons & Fonts** | Bootstrap Icons, Inter, Plus Jakarta Sans |
-| **AI Integration** | Google Gemini API (Chatbot, OCR, Disease Detection, Analytics, Symptom Checker) |
+| **AI Integration** | Google Gemini API (Primary) & Groq API (Fallback) with LLaMA 3 |
 | **Data Visualization**| Chart.js |
 | **PDF Generation** | ReportLab |
 
@@ -140,6 +142,7 @@ Make sure you have Python 3.x installed on your machine.
    Create a `.env` file in the root directory and add your API Keys and Email Settings (required for SOS Alerts):
    ```env
    GEMINI_API_KEY=your_gemini_api_key_here
+   GROQ_API_KEY=your_groq_api_key_here
    
    # Email Settings (for SOS Alerts) - e.g., using Gmail
    EMAIL_HOST="smtp.gmail.com"
