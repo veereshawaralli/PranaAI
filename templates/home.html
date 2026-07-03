@@ -189,6 +189,8 @@
     .fi-blue { background: rgba(6,182,212,0.1); color: #06B6D4; }
     .fi-purple { background: rgba(139,92,246,0.1); color: #8B5CF6; }
     .fi-orange { background: rgba(249,115,22,0.1); color: #F97316; }
+    .fi-red { background: rgba(220,53,69,0.1); color: #dc3545; }
+    .fi-green { background: rgba(25,135,84,0.1); color: #198754; }
 
     .feature-card-v2 h3 {
         font-family: 'Plus Jakarta Sans', sans-serif;
@@ -331,7 +333,7 @@
             Healthcare Made<br><span class="gradient-text">Intelligent & Simple</span>
         </h1>
         <p class="hero-subtitle">
-            <strong>Swasthya Sahayak</strong> — Analyze medical reports, digitize prescriptions with AI, set smart medicine reminders, and chat with your health assistant — all in one place.
+            <strong>Swasthya Sahayak</strong> — Chat with AI, scan prescriptions, detect diseases, book doctors, track analytics, and trigger emergency SOS — all in one place.
         </p>
         <div class="hero-cta d-flex gap-3 justify-content-center flex-wrap">
             {% if not user.is_authenticated %}
@@ -388,32 +390,68 @@
         <p class="text-muted mx-auto" style="max-width: 500px;">Powerful AI tools designed to simplify healthcare management for everyone.</p>
     </div>
     <div class="row g-4 row-cols-1 row-cols-md-2 row-cols-lg-4">
-        <div class="col">
-            <div class="feature-card-v2 h-100">
-                <div class="feature-icon-v2 fi-teal"><i class="bi bi-file-medical"></i></div>
-                <h3>AI Analysis</h3>
-                <p>Upload medical reports and X-Rays. Our deep learning models detect abnormalities instantly.</p>
-            </div>
-        </div>
-        <div class="col">
-            <div class="feature-card-v2 h-100">
-                <div class="feature-icon-v2 fi-blue"><i class="bi bi-upc-scan"></i></div>
-                <h3>Smart OCR</h3>
-                <p>Scan handwritten prescriptions using live camera or upload. AI extracts medicines automatically.</p>
-            </div>
-        </div>
+        <!-- 1 -->
         <div class="col">
             <div class="feature-card-v2 h-100">
                 <div class="feature-icon-v2 fi-purple"><i class="bi bi-robot"></i></div>
-                <h3>Health Chatbot</h3>
+                <h3>AI Chat Assistant</h3>
                 <p>Ask health questions anytime. Get instant, reliable AI-powered answers and guidance.</p>
             </div>
         </div>
+        <!-- 2 -->
         <div class="col">
             <div class="feature-card-v2 h-100">
-                <div class="feature-icon-v2 fi-orange"><i class="bi bi-bell"></i></div>
-                <h3>Med Reminders</h3>
-                <p>Never miss a dose. Smart reminders keep your medication schedule on track effortlessly.</p>
+                <div class="feature-icon-v2 fi-orange"><i class="bi bi-search-heart"></i></div>
+                <h3>Symptom Checker</h3>
+                <p>Input your symptoms to receive an AI-driven diagnosis and recommended next steps.</p>
+            </div>
+        </div>
+        <!-- 3 -->
+        <div class="col">
+            <div class="feature-card-v2 h-100">
+                <div class="feature-icon-v2 fi-blue"><i class="bi bi-upc-scan"></i></div>
+                <h3>Smart OCR Scan</h3>
+                <p>Scan handwritten prescriptions. Our AI extracts medicines automatically.</p>
+            </div>
+        </div>
+        <!-- 4 -->
+        <div class="col">
+            <div class="feature-card-v2 h-100">
+                <div class="feature-icon-v2 fi-teal"><i class="bi bi-lungs"></i></div>
+                <h3>Disease Detection</h3>
+                <p>Upload Chest X-Rays. Our deep learning models detect Tuberculosis and Pneumonia instantly.</p>
+            </div>
+        </div>
+        <!-- 5 -->
+        <div class="col">
+            <div class="feature-card-v2 h-100">
+                <div class="feature-icon-v2 fi-green"><i class="bi bi-geo-alt-fill"></i></div>
+                <h3>Nearby Healthcare</h3>
+                <p>Find hospitals, clinics, and pharmacies near you instantly using OpenStreetMap.</p>
+            </div>
+        </div>
+        <!-- 6 -->
+        <div class="col">
+            <div class="feature-card-v2 h-100">
+                <div class="feature-icon-v2 fi-blue"><i class="bi bi-calendar-check"></i></div>
+                <h3>Doctor Appointments</h3>
+                <p>Book, manage, and cancel appointments with healthcare providers in your network.</p>
+            </div>
+        </div>
+        <!-- 7 -->
+        <div class="col">
+            <div class="feature-card-v2 h-100">
+                <div class="feature-icon-v2 fi-purple"><i class="bi bi-graph-up-arrow"></i></div>
+                <h3>Health Analytics</h3>
+                <p>Track your health metrics over time with visual dashboards and generate PDF reports.</p>
+            </div>
+        </div>
+        <!-- 8 -->
+        <div class="col">
+            <div class="feature-card-v2 h-100">
+                <div class="feature-icon-v2 fi-red"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <h3>Emergency SOS</h3>
+                <p>One-tap panic button. Instantly email your live GPS location to your emergency contacts.</p>
             </div>
         </div>
     </div>
