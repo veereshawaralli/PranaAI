@@ -11,6 +11,39 @@ from django.conf import settings
 from dotenv import load_dotenv
 import re
 
+def get_groq_vision_fallback(prompt_text, image_file):
+    import base64
+    from groq import Groq
+    load_dotenv(os.path.join(settings.BASE_DIR, '.env'))
+    groq_api_key = os.environ.get('GROQ_API_KEY')
+    if not groq_api_key:
+        raise ValueError("Groq API key is not configured.")
+    
+    image_file.seek(0)
+    base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+    
+    client = Groq(api_key=groq_api_key)
+    completion = client.chat.completions.create(
+        model="llama-3.2-11b-vision-preview",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt_text},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}"
+                        }
+                    }
+                ]
+            }
+        ],
+        temperature=0.7,
+        max_tokens=1024
+    )
+    return completion.choices[0].message.content
+
 def get_gemini_model():
     load_dotenv(os.path.join(settings.BASE_DIR, '.env'))
     api_key = os.environ.get('GEMINI_API_KEY')
@@ -50,8 +83,16 @@ def upload_prescription(request):
                 ]
                 """
                 
-                response = model.generate_content([prompt, img])
-                response_text = response.text.strip()
+                try:
+                    response = model.generate_content([prompt, img])
+                    response_text = response.text.strip()
+                except Exception as gemini_err:
+                    error_msg = str(gemini_err).lower()
+                    if "429" in error_msg or "quota" in error_msg or "rate limit" in error_msg or "exhausted" in error_msg:
+                        print("Gemini limit reached. Falling back to Groq for OCR.")
+                        response_text = get_groq_vision_fallback(prompt, image_file).strip()
+                    else:
+                        raise gemini_err
                 
                 # Try to clean up markdown if the AI includes it despite instructions
                 response_text = re.sub(r'^```json', '', response_text, flags=re.IGNORECASE)

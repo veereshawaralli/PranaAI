@@ -150,16 +150,46 @@
                     body: JSON.stringify({ message: message })
                 });
                 
-                const data = await response.json();
-                document.getElementById('typing-indicator').remove();
+                const typing = document.getElementById('typing-indicator');
+                if (typing) typing.remove();
 
-                if (response.ok) {
-                    appendMessage('Prana AI', data.reply, false);
-                } else {
+                if (!response.ok) {
+                    const data = await response.json();
                     appendMessage('System', 'Error: ' + (data.error || 'Failed to get response'), false);
+                    return;
+                }
+
+                // Create empty AI bubble
+                const placeholder = document.getElementById('chat-placeholder');
+                if (placeholder) placeholder.remove();
+
+                const msgDiv = document.createElement('div');
+                msgDiv.classList.add('d-flex', 'mb-3', 'justify-content-start');
+                msgDiv.innerHTML = `<div class="chat-bubble-ai"></div>`;
+                chatWindow.appendChild(msgDiv);
+                
+                const bubble = msgDiv.querySelector('.chat-bubble-ai');
+
+                // Read the stream
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let fullText = "";
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, { stream: true });
+                    fullText += chunk;
+                    
+                    // Basic Markdown rendering
+                    const formattedMsg = fullText.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    bubble.innerHTML = formattedMsg;
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
                 }
             } catch (error) {
-                document.getElementById('typing-indicator').remove();
+                const typing = document.getElementById('typing-indicator');
+                if (typing) typing.remove();
                 appendMessage('System', 'Network Error: ' + error.message, false);
             }
         }

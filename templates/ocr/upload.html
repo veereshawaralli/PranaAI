@@ -15,7 +15,16 @@
                 <p class="text-muted">Let our AI automatically extract your medicines</p>
             </div>
             
-            <form method="post" enctype="multipart/form-data">
+            <!-- Loading Overlay -->
+            <div id="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center;">
+                <div class="spinner-border" style="width: 3rem; height: 3rem; color: var(--medical-primary);" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h4 class="mt-3 fw-bold" style="color: var(--medical-darker);">AI is analyzing your image...</h4>
+                <p class="text-muted">This may take up to 10 seconds. Please do not close this window.</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" onsubmit="document.getElementById('loading-overlay').style.display = 'flex';">
                 {% csrf_token %}
                 
                 <div class="mb-4 text-center">

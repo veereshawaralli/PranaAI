@@ -9,6 +9,39 @@ import os
 from django.conf import settings
 from dotenv import load_dotenv
 
+def get_groq_vision_fallback_from_path(prompt_text, img_path):
+    import base64
+    from groq import Groq
+    load_dotenv(os.path.join(settings.BASE_DIR, '.env'))
+    groq_api_key = os.environ.get('GROQ_API_KEY')
+    if not groq_api_key:
+        raise ValueError("Groq API key is not configured.")
+    
+    with open(img_path, "rb") as image_file:
+        base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+    
+    client = Groq(api_key=groq_api_key)
+    completion = client.chat.completions.create(
+        model="llama-3.2-11b-vision-preview",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt_text},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}"
+                        }
+                    }
+                ]
+            }
+        ],
+        temperature=0.7,
+        max_tokens=1024
+    )
+    return completion.choices[0].message.content
+
 def get_gemini_model():
     load_dotenv(os.path.join(settings.BASE_DIR, '.env'))
     api_key = os.environ.get('GEMINI_API_KEY')
@@ -55,24 +88,38 @@ def analyze_scan(request, scan_id):
         Identify any visible anomalies, signs of diseases, or conditions. 
         Format your response nicely with markdown (e.g., use headings, bullet points).
         
-        Based on the detected condition, please provide educational information broken down into these exact sections:
+        Please structure your response into two main parts:
         
-        1. General Medical Care: Typical treatment approaches and recovery expectations.
-        2. Homeopathy: Clearly label this as *Alternative Information Only*. Explicitly mention that scientific evidence for homeopathy differs from standard medical care, and its efficacy is not scientifically proven. 
-        3. Lifestyle Advice: Provide specific recommendations on:
+        # 1. Quick Summary (Short Answer)
+        Provide a brief, 2-3 sentence overview of the findings and the most immediate recommendation for quick reading. 
+        CRITICAL: Write this section in plain, simple English that a normal person without a medical background can easily understand. Avoid complex medical jargon here.
+        
+        # 2. Detailed Analysis (Long Answer)
+        Based on the detected condition, please provide comprehensive educational information broken down into these exact sections:
+        
+        - Detailed Findings: A detailed description of the visible anatomical structures and abnormalities.
+        - General Medical Care: Typical treatment approaches and recovery expectations.
+        - Homeopathy: Clearly label this as *Alternative Information Only*. Explicitly mention that scientific evidence for homeopathy differs from standard medical care, and its efficacy is not scientifically proven. 
+        - Lifestyle Advice: Provide specific recommendations on:
            - Foods to eat
            - Foods to avoid
            - Water intake
            - Sleep recommendations
            - Exercise suggestions
            - Stress management
-
-        IMPORTANT: Include a strong disclaimer at the very beginning and end stating that this information is purely educational and not a substitute for professional medical advice. Always encourage consulting a qualified healthcare professional.
         """
         
-        response = model.generate_content([prompt, img])
+        try:
+            response = model.generate_content([prompt, img])
+            scan.result_text = response.text
+        except Exception as gemini_err:
+            error_msg = str(gemini_err).lower()
+            if "429" in error_msg or "quota" in error_msg or "rate limit" in error_msg or "exhausted" in error_msg:
+                print("Gemini limit reached. Falling back to Groq for Disease Detection.")
+                scan.result_text = get_groq_vision_fallback_from_path(prompt, img_path)
+            else:
+                raise gemini_err
         
-        scan.result_text = response.text
         scan.save()
         
         messages.success(request, "Analysis complete!")

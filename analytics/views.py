@@ -130,6 +130,23 @@ IMPORTANT: Respond in the following JSON format ONLY, with no extra text:
 
 DISCLAIMER: This is for educational purposes only. Always consult a healthcare professional."""
 
+    def get_groq_fallback_response_json(prompt_text):
+        from groq import Groq
+        from django.conf import settings as django_settings
+        from dotenv import load_dotenv
+        load_dotenv(os.path.join(django_settings.BASE_DIR, '.env'))
+        groq_api_key = os.environ.get('GROQ_API_KEY')
+        if not groq_api_key:
+            raise ValueError("Groq API key is not configured.")
+        client = Groq(api_key=groq_api_key)
+        completion = client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[{"role": "user", "content": prompt_text}],
+            response_format={"type": "json_object"},
+            temperature=0.7,
+        )
+        return completion.choices[0].message.content
+
     try:
         import google.generativeai as genai
         from django.conf import settings as django_settings
@@ -144,8 +161,16 @@ DISCLAIMER: This is for educational purposes only. Always consult a healthcare p
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel('gemini-2.5-flash')
 
-        response = model.generate_content(prompt)
-        response_text = response.text.strip()
+        try:
+            response = model.generate_content(prompt)
+            response_text = response.text.strip()
+        except Exception as gemini_err:
+            error_msg = str(gemini_err).lower()
+            if "429" in error_msg or "quota" in error_msg or "rate limit" in error_msg or "exhausted" in error_msg:
+                print("Gemini limit reached. Falling back to Groq for Analytics.")
+                response_text = get_groq_fallback_response_json(prompt).strip()
+            else:
+                raise gemini_err
 
         # Parse JSON from response (handle markdown code blocks)
         if response_text.startswith('```'):
