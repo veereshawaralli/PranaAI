@@ -134,21 +134,26 @@
         clearMarkers();
         
         // Build Overpass API query for OSM
-        const typesStr = types.join('|');
-        const query = `
-            [out:json][timeout:25];
-            (
-              node["amenity"~"^(${typesStr})$"](around:5000,${currentPos.lat},${currentPos.lng});
-              way["amenity"~"^(${typesStr})$"](around:5000,${currentPos.lat},${currentPos.lng});
-            );
-            out center;
-        `;
+        // Expand types into exact match queries instead of regex for better reliability
+        const radius = 10000; // 10km
+        const typeQueries = types.map(t => 
+            `node["amenity"="${t}"](around:${radius},${currentPos.lat},${currentPos.lng});` +
+            `way["amenity"="${t}"](around:${radius},${currentPos.lat},${currentPos.lng});`
+        ).join('');
+        
+        const query = `[out:json][timeout:25];(${typeQueries});out center;`;
 
         fetch('https://overpass-api.de/api/interpreter', {
             method: 'POST',
-            body: query
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'data=' + encodeURIComponent(query)
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.json();
+        })
         .then(data => {
             callback(data.elements);
         })
