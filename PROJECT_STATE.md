@@ -40,7 +40,7 @@
 11. **Emergency SOS** (`emergency` app)
     - One-tap panic button with pulsing red animation.
     - HTML5 Geolocation captures live GPS coordinates.
-    - Sends email alerts to all emergency contacts with OpenStreetMap link.
+    - Sends email alerts to all emergency contacts with Google Maps link.
     - Emergency contact CRUD management.
     - SOS alert history log.
 12. **Health Analytics** (`analytics` app)
@@ -54,6 +54,10 @@
     - Severity slider (1-10) and duration picker.
     - Gemini AI analysis returning possible conditions, urgency level (Low/Medium/High/Emergency), recommendations, and home remedies.
     - Symptom check history log.
+14. **Pharmacy Store** (`pharmacy` app)
+    - Browse medicines by category.
+    - Shopping cart functionality.
+    - Simulated checkout and order history tracking.
 
 ## Planned Modules
 *(All modules are now complete! 13 features implemented. Please suggest new features to add to the roadmap.)*

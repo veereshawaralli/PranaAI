@@ -59,7 +59,7 @@
 
 ### 🚨 Emergency SOS Panic Button
 - **One-Tap SOS:** Trigger an emergency alert to instantly notify your designated emergency contacts.
-- **Live GPS Tracking:** Emails sent to emergency contacts include an OpenStreetMap link to your exact live GPS location using the HTML5 Geolocation API.
+- **Live GPS Tracking:** Emails sent to emergency contacts include a Google Maps link to your exact live GPS location using the HTML5 Geolocation API.
 
 ### 🎨 Premium User Interface
 - **Glassmorphism Design:** Frosted glass cards, fluid gradients, and refined typography (Plus Jakarta Sans).

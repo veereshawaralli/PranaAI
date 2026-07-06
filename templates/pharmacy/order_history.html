@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order History - Pharmacy{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-clock-history text-primary me-2"></i>My Orders</h2>
+            <p class="text-muted mb-0">View and track your previous medicine orders.</p>
+        </div>
+        <a href="{% url 'pharmacy:medicine_list' %}" class="btn btn-primary">Shop Again</a>
+    </div>
+
+    {% if orders %}
+    <div class="row">
+        <div class="col-12">
+            {% for order in orders %}
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center py-3 px-4 rounded-top-4">
+                    <div>
+                        <span class="text-muted small d-block">Order Placed</span>
+                        <span class="fw-bold">{{ order.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Total Amount</span>
+                        <span class="fw-bold">₹{{ order.total_amount }}</span>
+                    </div>
+                    <div>
+                        <span class="text-muted small d-block">Order ID</span>
+                        <span class="fw-bold">#{{ order.id }}</span>
+                    </div>
+                    <div>
+                        {% if order.status == 'Pending' %}
+                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
+                        {% elif order.status == 'Processing' %}
+                            <span class="badge bg-info text-dark px-3 py-2 rounded-pill"><i class="bi bi-arrow-repeat me-1"></i>Processing</span>
+                        {% elif order.status == 'Shipped' %}
+                            <span class="badge bg-primary px-3 py-2 rounded-pill"><i class="bi bi-truck me-1"></i>Shipped</span>
+                        {% elif order.status == 'Delivered' %}
+                            <span class="badge bg-success px-3 py-2 rounded-pill"><i class="bi bi-check-circle me-1"></i>Delivered</span>
+                        {% elif order.status == 'Cancelled' %}
+                            <span class="badge bg-danger px-3 py-2 rounded-pill"><i class="bi bi-x-circle me-1"></i>Cancelled</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3 border-bottom pb-2">Items Included</h6>
+                    <div class="row row-cols-1 row-cols-md-2 g-3">
+                        {% for item in order.items.all %}
+                        <div class="col">
+                            <div class="d-flex align-items-center bg-white border rounded p-2 h-100">
+                                {% if item.medicine and item.medicine.image %}
+                                <img src="{{ item.medicine.image.url }}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                {% else %}
+                                <div class="rounded me-3 bg-light d-flex align-items-center justify-content-center text-muted" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                {% endif %}
+                                
+                                <div>
+                                    <div class="fw-bold text-dark">{{ item.medicine.name|default:"Unknown Medicine" }}</div>
+                                    <div class="text-muted small">Qty: {{ item.quantity }} | ₹{{ item.price }} each</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="mt-4 pt-3 border-top">
+                        <h6 class="fw-bold mb-1">Delivery Address</h6>
+                        <p class="text-muted small mb-0">{{ order.shipping_address|linebreaksbr }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5 bg-white rounded-4 shadow-sm border-0">
+        <div class="mb-4">
+            <i class="bi bi-bag-x text-muted" style="font-size: 5rem;"></i>
+        </div>
+        <h3 class="fw-bold text-dark mb-3">No orders found</h3>
+        <p class="text-muted mb-4">You haven't placed any orders yet.</p>
+        <a href="{% url 'pharmacy:medicine_list' %}" class="btn btn-primary btn-lg px-4">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

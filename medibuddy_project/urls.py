@@ -33,6 +33,7 @@ urlpatterns = [
     path('emergency/', include('emergency.urls')),
     path('analytics/', include('analytics.urls')),
     path('symptom-checker/', include('symptom_checker.urls')),
+    path('pharmacy/', include('pharmacy.urls')),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
 ]
 

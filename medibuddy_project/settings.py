@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'emergency',
     'analytics',
     'symptom_checker',
+    'pharmacy',
     
     # Third party apps
     'crispy_forms',
