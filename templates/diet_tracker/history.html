@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Diet History - Prana AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .today-stat-card {
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: var(--radius-xl);
+        padding: 1.25rem;
+        text-align: center;
+        transition: var(--transition);
+    }
+    .today-stat-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-3px);
+        border-color: transparent;
+    }
+    .today-stat-icon {
+        width: 44px; height: 44px;
+        border-radius: var(--radius-md);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem;
+        margin: 0 auto 0.6rem;
+    }
+    .today-stat-value {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 1.4rem;
+        color: #1E293B;
+    }
+    .today-stat-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #94A3B8;
+    }
+    .food-log-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid #F1F5F9;
+        transition: var(--transition);
+    }
+    .food-log-item:hover { background: #FAFBFC; border-radius: var(--radius-md); padding-left: 0.5rem; }
+    .food-log-item:last-child { border-bottom: none; }
+    .food-log-thumb {
+        width: 55px; height: 55px;
+        object-fit: cover;
+        border-radius: var(--radius-md);
+        flex-shrink: 0;
+    }
+    .chart-wrapper {
+        position: relative;
+        height: 280px;
+        padding: 1rem 0;
+    }
+    .meal-badge {
+        display: inline-block;
+        padding: 0.2rem 0.6rem;
+        border-radius: 50rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .meal-breakfast { background: rgba(251,191,36,0.15); color: #D97706; }
+    .meal-lunch { background: rgba(249,115,22,0.15); color: #EA580C; }
+    .meal-dinner { background: rgba(139,92,246,0.15); color: #7C3AED; }
+    .meal-snack { background: rgba(16,185,129,0.15); color: #059669; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="dashboard-welcome animate-in" style="background: linear-gradient(135deg, #EA580C 0%, #C2410C 50%, #F97316 100%);">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2><i class="bi bi-journal-text me-2"></i>Diet History</h2>
+            <p>Track your daily nutrition and calorie intake over time.</p>
+        </div>
+        <div class="col-auto d-none d-md-block" style="position: relative; z-index: 1;">
+            <a href="{% url 'diet_tracker:scan_food' %}" class="btn rounded-pill px-4 py-2 fw-bold" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);">
+                <i class="bi bi-camera me-1"></i>New Scan
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Today's Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="today-stat-card animate-in" style="animation-delay: 0.05s;">
+            <div class="today-stat-icon" style="background: rgba(249,115,22,0.1); color: #F97316;"><i class="bi bi-fire"></i></div>
+            <div class="today-stat-value">{{ today_calories|floatformat:0 }}</div>
+            <div class="today-stat-label">Today's Calories</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="today-stat-card animate-in" style="animation-delay: 0.1s;">
+            <div class="today-stat-icon" style="background: rgba(244,63,94,0.1); color: #F43F5E;"><i class="bi bi-egg-fried"></i></div>
+            <div class="today-stat-value">{{ today_protein|floatformat:0 }}<small class="fs-6 fw-normal text-muted">g</small></div>
+            <div class="today-stat-label">Protein</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="today-stat-card animate-in" style="animation-delay: 0.15s;">
+            <div class="today-stat-icon" style="background: rgba(59,130,246,0.1); color: #3B82F6;"><i class="bi bi-box"></i></div>
+            <div class="today-stat-value">{{ today_carbs|floatformat:0 }}<small class="fs-6 fw-normal text-muted">g</small></div>
+            <div class="today-stat-label">Carbs</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="today-stat-card animate-in" style="animation-delay: 0.2s;">
+            <div class="today-stat-icon" style="background: rgba(234,179,8,0.1); color: #EAB308;"><i class="bi bi-droplet-half"></i></div>
+            <div class="today-stat-value">{{ today_fat|floatformat:0 }}<small class="fs-6 fw-normal text-muted">g</small></div>
+            <div class="today-stat-label">Fat</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Calorie Trend Chart -->
+    <div class="col-lg-7">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.15s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #F97316, #FB923C);"><i class="bi bi-bar-chart-line"></i></div>
+                    <h5>Calorie Trend</h5>
+                    <span class="badge bg-primary rounded-pill">{{ total_scans }} scans</span>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="calorieChart"></canvas>
+                </div>
+                <div id="noChartData" class="text-center py-3" style="display: none;">
+                    <i class="bi bi-graph-up fs-1 text-muted"></i>
+                    <p class="text-muted fw-semibold">Start scanning meals to see your trend!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meal Log -->
+    <div class="col-lg-5">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.25s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon"><i class="bi bi-list-ul"></i></div>
+                    <h5>Meal Log</h5>
+                </div>
+
+                {% if scans %}
+                    {% for scan in scans %}
+                    <a href="{% url 'diet_tracker:scan_result' scan.id %}" class="food-log-item text-decoration-none text-dark">
+                        <img src="{{ scan.image.url }}" class="food-log-thumb" alt="{{ scan.food_name }}">
+                        <div class="flex-grow-1">
+                            <div class="fw-bold" style="font-size: 0.88rem;">{{ scan.food_name|default:"Unanalyzed" }}</div>
+                            <div class="d-flex align-items-center gap-2 mt-1">
+                                <span class="meal-badge meal-{{ scan.meal_type }}">{{ scan.get_meal_type_display }}</span>
+                                <small class="text-muted">{{ scan.scanned_at|date:"M d" }}</small>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold" style="color: #F97316;">{{ scan.calories|default:"--" }}</div>
+                            <small class="text-muted">kcal</small>
+                        </div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-camera fs-1 text-muted"></i>
+                        <p class="text-muted mt-2 mb-3">No food scans yet!</p>
+                        <a href="{% url 'diet_tracker:scan_food' %}" class="btn btn-primary btn-sm rounded-pill px-3">
+                            <i class="bi bi-camera me-1"></i>Scan First Meal
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    fetch("{% url 'diet_tracker:api_daily_calories' %}?days=14")
+        .then(r => r.json())
+        .then(data => {
+            const canvas = document.getElementById('calorieChart');
+            const noData = document.getElementById('noChartData');
+
+            if (data.labels.length === 0) {
+                canvas.style.display = 'none';
+                noData.style.display = 'block';
+                return;
+            }
+
+            new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Calories',
+                        data: data.values,
+                        backgroundColor: 'rgba(249,115,22,0.2)',
+                        borderColor: '#F97316',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        hoverBackgroundColor: 'rgba(249,115,22,0.4)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter', size: 11 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(0,0,0,0.04)' },
+                            ticks: { font: { family: 'Inter', size: 11 } }
+                        }
+                    }
+                }
+            });
+        });
+</script>
+{% endblock %}

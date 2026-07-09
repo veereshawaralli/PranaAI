@@ -56,6 +56,9 @@ INSTALLED_APPS = [
     'analytics',
     'symptom_checker',
     'pharmacy',
+    'diet_tracker',
+    'meal_planner',
+    'mood_journal',
     
     # Third party apps
     'crispy_forms',

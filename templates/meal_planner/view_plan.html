@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ plan.get_goal_display }} Meal Plan - Prana AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .day-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.55rem 1.2rem;
+        border-radius: 50rem;
+        font-weight: 600;
+        font-size: 0.82rem;
+        border: 1.5px solid #E2E8F0;
+        background: white;
+        color: #64748B;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    .day-tab:hover { border-color: #10B981; color: #10B981; }
+    .day-tab.active {
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(16,185,129,0.25);
+    }
+    .day-panel { display: none; }
+    .day-panel.active { display: block; }
+
+    .meal-card {
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        transition: var(--transition);
+    }
+    .meal-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+        border-color: transparent;
+    }
+    .meal-icon {
+        width: 40px; height: 40px;
+        border-radius: var(--radius-md);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .meal-cal-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: rgba(249,115,22,0.1);
+        color: #EA580C;
+        font-weight: 700;
+        font-size: 0.78rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 50rem;
+    }
+    .day-total-card {
+        background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(5,150,105,0.05));
+        border: 1px solid rgba(16,185,129,0.2);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.25rem;
+    }
+    .day-tip {
+        background: rgba(139,92,246,0.06);
+        border: 1px solid rgba(139,92,246,0.15);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.25rem;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="dashboard-welcome animate-in" style="background: linear-gradient(135deg, #059669 0%, #047857 50%, #10B981 100%);">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2><i class="bi bi-calendar2-check me-2"></i>{{ plan.get_goal_display }} Meal Plan</h2>
+            <p>{{ plan.get_dietary_preference_display }} • Generated {{ plan.created_at|date:"M d, Y" }}</p>
+        </div>
+        <div class="col-auto d-none d-md-flex gap-2" style="position: relative; z-index: 1;">
+            <a href="{% url 'meal_planner:generate_plan' %}" class="btn rounded-pill px-4 py-2 fw-bold" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);">
+                <i class="bi bi-plus-circle me-1"></i>New Plan
+            </a>
+            <a href="{% url 'meal_planner:plan_history' %}" class="btn rounded-pill px-4 py-2 fw-bold" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);">
+                <i class="bi bi-clock-history me-1"></i>History
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if plan.ai_notes %}
+<div class="alert alert-light rounded-3 animate-in mb-4" style="border: 1px solid #E2E8F0;">
+    <i class="bi bi-stars text-primary me-2"></i><strong>AI Notes:</strong> {{ plan.ai_notes }}
+</div>
+{% endif %}
+
+{% if plan.plan_data %}
+<!-- Day Tabs -->
+<div class="d-flex flex-wrap gap-2 mb-4 animate-in" style="animation-delay: 0.1s;">
+    {% for day in plan.plan_data %}
+    <button class="day-tab {% if forloop.first %}active{% endif %}" onclick="switchDay({{ forloop.counter0 }}, this)">
+        {{ day.day|default:forloop.counter }}
+    </button>
+    {% endfor %}
+</div>
+
+<!-- Day Panels -->
+{% for day in plan.plan_data %}
+<div class="day-panel {% if forloop.first %}active{% endif %}" id="day-{{ forloop.counter0 }}">
+    <div class="row g-3">
+        {% for meal_key, meal in day.meals.items %}
+        <div class="col-md-6">
+            <div class="meal-card animate-in">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="meal-icon" style="background: 
+                        {% if meal_key == 'breakfast' %}rgba(251,191,36,0.15); color: #D97706;
+                        {% elif meal_key == 'lunch' %}rgba(249,115,22,0.15); color: #EA580C;
+                        {% elif meal_key == 'dinner' %}rgba(139,92,246,0.15); color: #7C3AED;
+                        {% elif meal_key == 'morning_snack' %}rgba(16,185,129,0.15); color: #059669;
+                        {% else %}rgba(6,182,212,0.15); color: #0891B2;{% endif %}">
+                        <i class="bi {% if meal_key == 'breakfast' %}bi-sunrise{% elif meal_key == 'lunch' %}bi-sun{% elif meal_key == 'dinner' %}bi-moon-stars{% else %}bi-cup-hot{% endif %}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold text-capitalize" style="font-size: 0.78rem; color: #94A3B8; letter-spacing: 0.5px;">{{ meal_key|cut:"_" }}</div>
+                        <div class="fw-bold" style="font-size: 0.95rem;">{{ meal.name }}</div>
+                    </div>
+                    <div class="meal-cal-badge"><i class="bi bi-fire"></i> {{ meal.calories }} kcal</div>
+                </div>
+                <p class="text-muted mb-0" style="font-size: 0.88rem;">{{ meal.description }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Day Summary -->
+    <div class="row g-3 mt-2">
+        {% if day.total_calories %}
+        <div class="col-md-6">
+            <div class="day-total-card">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-fire fs-5" style="color: #10B981;"></i>
+                    <div>
+                        <div class="fw-bold" style="font-size: 1.1rem; color: #059669;">{{ day.total_calories }} kcal</div>
+                        <small class="text-muted fw-semibold">Total for {{ day.day }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if day.tip %}
+        <div class="col-md-6">
+            <div class="day-tip">
+                <i class="bi bi-lightbulb text-warning me-1"></i>
+                <strong>Tip:</strong> {{ day.tip }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="dashboard-card">
+    <div class="card-body text-center py-5">
+        <i class="bi bi-exclamation-circle fs-1 text-muted"></i>
+        <p class="text-muted mt-2">No plan data available. Please try generating again.</p>
+        <a href="{% url 'meal_planner:generate_plan' %}" class="btn btn-primary rounded-pill px-4">Generate New Plan</a>
+    </div>
+</div>
+{% endif %}
+
+<div class="alert alert-light mt-4 rounded-3" style="border: 1px solid #E2E8F0; font-size: 0.8rem;">
+    <i class="bi bi-info-circle text-primary me-1"></i>
+    <strong>Disclaimer:</strong> This meal plan is AI-generated for educational purposes only. Consult a certified nutritionist or dietitian before making significant dietary changes.
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function switchDay(index, btn) {
+        document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('day-' + index).classList.add('active');
+    }
+</script>
+{% endblock %}

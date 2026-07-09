@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mood Entry - {{ entry.entry_date|date:"M d, Y" }} - Prana AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .entry-mood-badge {
+        width: 100px; height: 100px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 3.5rem;
+        margin: 0 auto 1rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+    .sentiment-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 1rem;
+        border-radius: 50rem;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .sentiment-chip.positive { background: rgba(16,185,129,0.1); color: #059669; }
+    .sentiment-chip.neutral { background: rgba(234,179,8,0.1); color: #D97706; }
+    .sentiment-chip.negative { background: rgba(239,68,68,0.1); color: #DC2626; }
+    .activity-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.35rem 0.85rem;
+        border-radius: 50rem;
+        font-weight: 600;
+        font-size: 0.82rem;
+        background: rgba(139,92,246,0.08);
+        color: #7C3AED;
+    }
+    .journal-text-display {
+        font-size: 1rem;
+        line-height: 1.9;
+        color: #334155;
+        padding: 1.5rem;
+        background: #F8FAFC;
+        border-radius: var(--radius-lg);
+        border-left: 4px solid #8B5CF6;
+    }
+    .ai-suggestion {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #F1F5F9;
+    }
+    .ai-suggestion:last-child { border-bottom: none; }
+    .ai-suggestion-icon {
+        width: 28px; height: 28px;
+        border-radius: 50%;
+        background: rgba(139,92,246,0.1);
+        display: flex; align-items: center; justify-content: center;
+        color: #8B5CF6;
+        flex-shrink: 0;
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="dashboard-welcome animate-in" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 50%, #8B5CF6 100%);">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2><i class="bi bi-journal-text me-2"></i>{{ entry.entry_date|date:"l, M d, Y" }}</h2>
+            <p>Mood: {{ entry.get_mood_score_display }} • {{ entry.mood_emoji }}</p>
+        </div>
+        <div class="col-auto d-none d-md-flex gap-2" style="position: relative; z-index: 1;">
+            <a href="{% url 'mood_journal:check_in' %}" class="btn rounded-pill px-4 py-2 fw-bold" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);">
+                <i class="bi bi-plus-circle me-1"></i>New Check-In
+            </a>
+            <a href="{% url 'mood_journal:dashboard' %}" class="btn rounded-pill px-4 py-2 fw-bold" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);">
+                <i class="bi bi-graph-up me-1"></i>Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Entry Content -->
+    <div class="col-lg-7">
+        <!-- Mood & Meta -->
+        <div class="dashboard-card animate-in" style="animation-delay: 0.1s;">
+            <div class="card-body text-center">
+                <div class="entry-mood-badge" style="background: {{ entry.mood_color }}15;">
+                    {{ entry.mood_emoji }}
+                </div>
+                <h4 class="fw-bold mb-2">{{ entry.get_mood_score_display }}</h4>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    {% if entry.ai_sentiment %}
+                    <span class="sentiment-chip {{ entry.ai_sentiment }}">
+                        {% if entry.ai_sentiment == 'positive' %}<i class="bi bi-emoji-smile"></i>
+                        {% elif entry.ai_sentiment == 'negative' %}<i class="bi bi-emoji-frown"></i>
+                        {% else %}<i class="bi bi-emoji-neutral"></i>{% endif %}
+                        {{ entry.ai_sentiment }}
+                    </span>
+                    {% endif %}
+                    {% if entry.sleep_hours %}
+                    <span class="sentiment-chip" style="background: rgba(99,102,241,0.1); color: #6366F1;">
+                        <i class="bi bi-moon-stars"></i> {{ entry.sleep_hours }}h sleep
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Activities -->
+        {% if entry.activity_list %}
+        <div class="dashboard-card mt-4 animate-in" style="animation-delay: 0.15s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #14B8A6, #0D9488);"><i class="bi bi-activity"></i></div>
+                    <h5>Activities</h5>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for activity in entry.activity_list %}
+                    <span class="activity-tag">{{ activity }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Journal Text -->
+        {% if entry.journal_text %}
+        <div class="dashboard-card mt-4 animate-in" style="animation-delay: 0.2s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #F43F5E, #E11D48);"><i class="bi bi-pencil"></i></div>
+                    <h5>Journal Entry</h5>
+                </div>
+                <div class="journal-text-display">
+                    {{ entry.journal_text|linebreaksbr }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- AI Analysis Sidebar -->
+    <div class="col-lg-5">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.25s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);"><i class="bi bi-stars"></i></div>
+                    <h5>AI Mental Health Insight</h5>
+                </div>
+
+                {% if entry.ai_analysis %}
+                    <div style="font-size: 0.92rem; line-height: 1.8; color: #334155;">
+                        {{ entry.ai_analysis|linebreaksbr }}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-chat-heart fs-1 text-muted"></i>
+                        <p class="text-muted mt-2 mb-0">Write a journal entry to get personalized AI insights.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="alert alert-light mt-4 rounded-3 animate-in" style="border: 1px solid #E2E8F0; font-size: 0.8rem; animation-delay: 0.3s;">
+            <i class="bi bi-info-circle text-primary me-1"></i>
+            <strong>Disclaimer:</strong> AI insights are for self-reflection and educational purposes only. If you're experiencing persistent emotional distress, please reach out to a licensed mental health professional.
+            <div class="mt-2">
+                <strong>Crisis Helpline (India):</strong> iCALL — 9152987821
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

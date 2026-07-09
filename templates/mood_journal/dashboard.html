@@ -1,0 +1,395 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mood Journal - Prana AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mood-stat-card {
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: var(--radius-xl);
+        padding: 1.25rem;
+        text-align: center;
+        transition: var(--transition);
+    }
+    .mood-stat-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-3px);
+        border-color: transparent;
+    }
+    .mood-stat-icon {
+        width: 48px; height: 48px;
+        border-radius: var(--radius-md);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem;
+        margin: 0 auto 0.75rem;
+    }
+    .mood-stat-value {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: #1E293B;
+    }
+    .mood-stat-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #94A3B8;
+        margin-top: 0.25rem;
+    }
+    .chart-wrapper { position: relative; height: 280px; padding: 1rem 0; }
+    .mood-entry-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid #F1F5F9;
+        transition: var(--transition);
+    }
+    .mood-entry-row:hover { background: #FAFBFC; border-radius: var(--radius-md); padding-left: 0.5rem; }
+    .mood-entry-row:last-child { border-bottom: none; }
+    .mood-emoji-badge {
+        width: 44px; height: 44px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+    .sentiment-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 50rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .sentiment-positive { background: rgba(16,185,129,0.1); color: #059669; }
+    .sentiment-neutral { background: rgba(234,179,8,0.1); color: #D97706; }
+    .sentiment-negative { background: rgba(239,68,68,0.1); color: #DC2626; }
+
+    .insight-card {
+        background: linear-gradient(135deg, rgba(139,92,246,0.06), rgba(124,58,237,0.03));
+        border: 1px solid rgba(139,92,246,0.15);
+        border-radius: var(--radius-xl);
+        padding: 1.5rem;
+    }
+    .trend-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50rem;
+        font-weight: 700;
+        font-size: 0.78rem;
+    }
+    .trend-improving { background: rgba(16,185,129,0.1); color: #059669; }
+    .trend-stable { background: rgba(59,130,246,0.1); color: #2563EB; }
+    .trend-declining { background: rgba(239,68,68,0.1); color: #DC2626; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="dashboard-welcome animate-in" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 50%, #8B5CF6 100%);">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2><i class="bi bi-journal-heart me-2"></i>Mood Journal</h2>
+            <p>Track your emotional well-being and get AI-powered mental health insights.</p>
+        </div>
+        <div class="col-auto d-none d-md-block" style="position: relative; z-index: 1;">
+            <a href="{% url 'mood_journal:check_in' %}" class="btn rounded-pill px-4 py-2 fw-bold" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);">
+                <i class="bi bi-plus-circle me-1"></i>Check In Today
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="mood-stat-card animate-in" style="animation-delay: 0.05s;">
+            <div class="mood-stat-icon" style="background: rgba(139,92,246,0.1); color: #8B5CF6;"><i class="bi bi-journal-text"></i></div>
+            <div class="mood-stat-value">{{ total_entries }}</div>
+            <div class="mood-stat-label">Total Entries</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="mood-stat-card animate-in" style="animation-delay: 0.1s;">
+            <div class="mood-stat-icon" style="background: rgba(249,115,22,0.1); color: #F97316;"><i class="bi bi-fire"></i></div>
+            <div class="mood-stat-value">{{ streak }}<small class="fs-6 fw-normal text-muted">d</small></div>
+            <div class="mood-stat-label">Current Streak</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="mood-stat-card animate-in" style="animation-delay: 0.15s;">
+            <div class="mood-stat-icon" style="background: rgba(16,185,129,0.1); color: #10B981;"><i class="bi bi-emoji-smile"></i></div>
+            <div class="mood-stat-value">{% if avg_mood %}{{ avg_mood|floatformat:1 }}{% else %}--{% endif %}</div>
+            <div class="mood-stat-label">Avg Mood (1-5)</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="mood-stat-card animate-in" style="animation-delay: 0.2s;">
+            <div class="mood-stat-icon" style="background: rgba(6,182,212,0.1); color: #06B6D4;">
+                {% if avg_mood and avg_mood >= 4 %}🤩
+                {% elif avg_mood and avg_mood >= 3 %}😊
+                {% elif avg_mood %}😟
+                {% else %}<i class="bi bi-question-circle"></i>{% endif %}
+            </div>
+            <div class="mood-stat-value">
+                {% if avg_mood and avg_mood >= 4 %}Great
+                {% elif avg_mood and avg_mood >= 3 %}Good
+                {% elif avg_mood %}Low
+                {% else %}--{% endif %}
+            </div>
+            <div class="mood-stat-label">Overall Mood</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Mood Chart -->
+    <div class="col-lg-8">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.15s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);"><i class="bi bi-graph-up"></i></div>
+                    <h5>Mood Trend</h5>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="moodChart"></canvas>
+                </div>
+                <div id="noChartData" class="text-center py-3" style="display: none;">
+                    <i class="bi bi-graph-up fs-1 text-muted"></i>
+                    <p class="text-muted fw-semibold">Start checking in to see your mood trend!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Entries -->
+        <div class="dashboard-card mt-4 animate-in" style="animation-delay: 0.25s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon"><i class="bi bi-clock-history"></i></div>
+                    <h5>Recent Entries</h5>
+                </div>
+
+                {% if recent_entries %}
+                    {% for entry in recent_entries %}
+                    <a href="{% url 'mood_journal:entry_detail' entry.id %}" class="mood-entry-row text-decoration-none text-dark">
+                        <div class="mood-emoji-badge" style="background: {{ entry.mood_color }}15;">{{ entry.mood_emoji }}</div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold" style="font-size: 0.9rem;">{{ entry.entry_date|date:"l, M d" }}</div>
+                            <div class="d-flex align-items-center gap-2 mt-1">
+                                {% if entry.ai_sentiment %}
+                                <span class="sentiment-badge sentiment-{{ entry.ai_sentiment }}">{{ entry.ai_sentiment }}</span>
+                                {% endif %}
+                                {% if entry.sleep_hours %}
+                                <small class="text-muted"><i class="bi bi-moon"></i> {{ entry.sleep_hours }}h</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="fw-bold" style="color: {{ entry.mood_color }};">{{ entry.mood_score }}/5</div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-journal fs-1 text-muted"></i>
+                        <p class="text-muted mt-2 mb-3">No entries yet!</p>
+                        <a href="{% url 'mood_journal:check_in' %}" class="btn btn-primary btn-sm rounded-pill px-3">
+                            <i class="bi bi-plus-circle me-1"></i>First Check-In
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- AI Weekly Insight -->
+        <div class="dashboard-card animate-in" style="animation-delay: 0.3s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #F43F5E, #E11D48);"><i class="bi bi-stars"></i></div>
+                    <h5>Weekly Insight</h5>
+                </div>
+                <div id="insightContainer">
+                    <div class="text-center py-3">
+                        <button class="btn btn-primary rounded-pill px-4" id="getInsightBtn" onclick="getWeeklyInsight()">
+                            <i class="bi bi-stars me-1"></i>Get AI Insight
+                        </button>
+                        <p class="text-muted small mt-2">AI will analyze your recent entries</p>
+                    </div>
+                </div>
+                <div id="insightResult" style="display: none;" class="insight-card">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="fw-bold text-uppercase" style="color: #94A3B8; letter-spacing: 0.5px;">Trend</small>
+                        <span class="trend-badge" id="trendBadge"></span>
+                    </div>
+                    <p class="mb-2" style="font-size: 0.9rem;" id="patternText"></p>
+                    <div class="d-flex align-items-start gap-2 mt-3">
+                        <i class="bi bi-lightbulb text-warning flex-shrink-0 mt-1"></i>
+                        <small id="keyInsight" style="color: #334155;"></small>
+                    </div>
+                    <div class="d-flex align-items-start gap-2 mt-2">
+                        <i class="bi bi-arrow-right-circle text-primary flex-shrink-0 mt-1"></i>
+                        <small id="recommendation" style="color: #334155;"></small>
+                    </div>
+                    <div class="mt-3 p-2 rounded-3" style="background: rgba(139,92,246,0.06);">
+                        <small id="encouragement" class="text-muted fst-italic"></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mood Distribution -->
+        <div class="dashboard-card mt-4 animate-in" style="animation-delay: 0.35s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #14B8A6, #0D9488);"><i class="bi bi-pie-chart"></i></div>
+                    <h5>Mood Distribution</h5>
+                </div>
+                {% for score, count in mood_counts.items %}
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span style="font-size: 1.2rem;">
+                        {% if score == 1 %}😢{% elif score == 2 %}😟{% elif score == 3 %}😐{% elif score == 4 %}😊{% else %}🤩{% endif %}
+                    </span>
+                    <div class="flex-grow-1">
+                        <div class="progress" style="height: 8px; border-radius: 50rem;">
+                            <div class="progress-bar" style="width: {% if total_entries %}{{ count|floatformat:0 }}{% else %}0{% endif %}%; background:
+                                {% if score == 1 %}#EF4444{% elif score == 2 %}#F97316{% elif score == 3 %}#EAB308{% elif score == 4 %}#10B981{% else %}#06B6D4{% endif %};
+                                border-radius: 50rem;"></div>
+                        </div>
+                    </div>
+                    <small class="fw-bold text-muted" style="min-width: 24px; text-align: right;">{{ count }}</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Quick Check-In CTA -->
+        <div class="dashboard-card mt-4 animate-in" style="animation-delay: 0.4s;">
+            <div class="card-body text-center py-4">
+                <div style="width: 56px; height: 56px; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(139,92,246,0.1);">
+                    <i class="bi bi-pencil-square fs-3" style="color: #8B5CF6;"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Check In Now</h6>
+                <p class="text-muted small mb-3">A few minutes of self-reflection makes a difference.</p>
+                <a href="{% url 'mood_journal:check_in' %}" class="btn btn-primary rounded-pill px-4">
+                    <i class="bi bi-journal-check me-1"></i>Start
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    // Load mood chart
+    fetch("{% url 'mood_journal:api_mood_data' %}?days=30")
+        .then(r => r.json())
+        .then(data => {
+            const canvas = document.getElementById('moodChart');
+            const noData = document.getElementById('noChartData');
+
+            if (data.labels.length === 0) {
+                canvas.style.display = 'none';
+                noData.style.display = 'block';
+                return;
+            }
+
+            new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Mood Score',
+                        data: data.values,
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139,92,246,0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointHoverRadius: 9,
+                        pointBackgroundColor: '#8B5CF6',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        borderWidth: 2.5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter', size: 11 } }
+                        },
+                        y: {
+                            min: 0, max: 5.5,
+                            grid: { color: 'rgba(0,0,0,0.04)' },
+                            ticks: {
+                                stepSize: 1,
+                                font: { family: 'Inter', size: 11 },
+                                callback: function(value) {
+                                    const labels = {1: '😢', 2: '😟', 3: '😐', 4: '😊', 5: '🤩'};
+                                    return labels[value] || '';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+    // Weekly insight
+    function getWeeklyInsight() {
+        const btn = document.getElementById('getInsightBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyzing...';
+
+        fetch("{% url 'mood_journal:weekly_insight' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error || data.message) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-stars me-1"></i>Get AI Insight';
+                alert(data.message || data.error);
+                return;
+            }
+
+            document.getElementById('insightContainer').style.display = 'none';
+            const result = document.getElementById('insightResult');
+            result.style.display = 'block';
+
+            const trendBadge = document.getElementById('trendBadge');
+            trendBadge.textContent = data.overall_trend || 'stable';
+            trendBadge.className = 'trend-badge trend-' + (data.overall_trend || 'stable');
+
+            document.getElementById('patternText').textContent = data.pattern_summary || '';
+            document.getElementById('keyInsight').textContent = data.key_insight || '';
+            document.getElementById('recommendation').textContent = data.recommendation || '';
+            document.getElementById('encouragement').textContent = data.encouragement || '';
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-stars me-1"></i>Try Again';
+        });
+    }
+</script>
+{% endblock %}

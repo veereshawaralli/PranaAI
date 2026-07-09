@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Generate Meal Plan - Prana AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .goal-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border: 2px solid #E2E8F0;
+        border-radius: var(--radius-lg);
+        cursor: pointer;
+        transition: var(--transition);
+        background: white;
+    }
+    .goal-card:hover {
+        border-color: var(--medical-primary);
+        box-shadow: var(--shadow-sm);
+    }
+    .goal-card.selected {
+        border-color: #10B981;
+        background: rgba(16,185,129,0.04);
+        box-shadow: 0 4px 12px rgba(16,185,129,0.15);
+    }
+    .goal-card input[type="radio"] { display: none; }
+    .goal-icon {
+        width: 48px; height: 48px;
+        border-radius: var(--radius-md);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+    .diet-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.55rem 1.2rem;
+        border-radius: 50rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1.5px solid #E2E8F0;
+        background: white;
+        color: #64748B;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    .diet-pill:hover { border-color: #10B981; color: #10B981; }
+    .diet-pill.selected {
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(16,185,129,0.25);
+    }
+    .diet-pill input[type="radio"] { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="dashboard-welcome animate-in" style="background: linear-gradient(135deg, #059669 0%, #047857 50%, #10B981 100%);">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2><i class="bi bi-calendar2-week me-2"></i>AI Meal Planner</h2>
+            <p>Get a personalized 7-day meal plan based on your health goals and dietary preferences.</p>
+        </div>
+        <div class="col-auto d-none d-md-block" style="position: relative; z-index: 1;">
+            <a href="{% url 'meal_planner:plan_history' %}" class="btn rounded-pill px-4 py-2 fw-bold" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);">
+                <i class="bi bi-clock-history me-1"></i>Past Plans
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <form method="post" id="planForm">
+            {% csrf_token %}
+
+            <!-- Health Goal Selection -->
+            <div class="dashboard-card animate-in" style="animation-delay: 0.1s;">
+                <div class="card-body">
+                    <div class="section-header">
+                        <div class="section-icon" style="background: linear-gradient(135deg, #10B981, #059669);"><i class="bi bi-bullseye"></i></div>
+                        <h5>What's Your Goal?</h5>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="goal-card" onclick="selectGoal(this, 'weight_loss')">
+                                <input type="radio" name="goal" value="weight_loss">
+                                <div class="goal-icon" style="background: rgba(244,63,94,0.1); color: #F43F5E;"><i class="bi bi-arrow-down-circle"></i></div>
+                                <div>
+                                    <div class="fw-bold">Weight Loss</div>
+                                    <small class="text-muted">Calorie-controlled, balanced meals</small>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="goal-card" onclick="selectGoal(this, 'muscle_gain')">
+                                <input type="radio" name="goal" value="muscle_gain">
+                                <div class="goal-icon" style="background: rgba(59,130,246,0.1); color: #3B82F6;"><i class="bi bi-lightning"></i></div>
+                                <div>
+                                    <div class="fw-bold">Muscle Gain</div>
+                                    <small class="text-muted">High-protein, energy-rich meals</small>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="goal-card" onclick="selectGoal(this, 'diabetes_management')">
+                                <input type="radio" name="goal" value="diabetes_management">
+                                <div class="goal-icon" style="background: rgba(249,115,22,0.1); color: #F97316;"><i class="bi bi-droplet-half"></i></div>
+                                <div>
+                                    <div class="fw-bold">Diabetes Management</div>
+                                    <small class="text-muted">Low glycemic, blood-sugar friendly</small>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="goal-card" onclick="selectGoal(this, 'heart_health')">
+                                <input type="radio" name="goal" value="heart_health">
+                                <div class="goal-icon" style="background: rgba(244,63,94,0.1); color: #EF4444;"><i class="bi bi-heart-pulse"></i></div>
+                                <div>
+                                    <div class="fw-bold">Heart Health</div>
+                                    <small class="text-muted">Low-sodium, heart-friendly foods</small>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="goal-card selected" onclick="selectGoal(this, 'general_wellness')">
+                                <input type="radio" name="goal" value="general_wellness" checked>
+                                <div class="goal-icon" style="background: rgba(16,185,129,0.1); color: #10B981;"><i class="bi bi-stars"></i></div>
+                                <div>
+                                    <div class="fw-bold">General Wellness</div>
+                                    <small class="text-muted">Balanced nutrition for overall health</small>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diet & Preferences -->
+            <div class="dashboard-card mt-4 animate-in" style="animation-delay: 0.2s;">
+                <div class="card-body">
+                    <div class="section-header">
+                        <div class="section-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);"><i class="bi bi-sliders"></i></div>
+                        <h5>Dietary Preferences</h5>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Diet Type</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <label class="diet-pill selected" onclick="selectDiet(this, 'vegetarian')">
+                                <input type="radio" name="dietary_preference" value="vegetarian" checked>
+                                🥗 Vegetarian
+                            </label>
+                            <label class="diet-pill" onclick="selectDiet(this, 'vegan')">
+                                <input type="radio" name="dietary_preference" value="vegan">
+                                🌱 Vegan
+                            </label>
+                            <label class="diet-pill" onclick="selectDiet(this, 'non_veg')">
+                                <input type="radio" name="dietary_preference" value="non_veg">
+                                🍗 Non-Vegetarian
+                            </label>
+                            <label class="diet-pill" onclick="selectDiet(this, 'eggetarian')">
+                                <input type="radio" name="dietary_preference" value="eggetarian">
+                                🥚 Eggetarian
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Food Allergies / Restrictions</label>
+                        {{ form.allergies }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Daily Calorie Target (Optional)</label>
+                        {{ form.calorie_target }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5" id="generateBtn">
+                    <i class="bi bi-stars me-2"></i>Generate My Meal Plan
+                </button>
+                <p class="text-muted small mt-2">AI will generate a personalized 7-day plan in seconds</p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.3s;">
+            <div class="card-body text-center py-4">
+                <div style="width: 64px; height: 64px; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(16,185,129,0.1);">
+                    <i class="bi bi-lightbulb fs-2" style="color: #10B981;"></i>
+                </div>
+                <h6 class="fw-bold mb-2">How It Works</h6>
+                <div class="text-start">
+                    <div class="d-flex align-items-start gap-2 mb-2">
+                        <span class="badge bg-primary rounded-circle" style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.7rem;">1</span>
+                        <small class="text-muted">Choose your health goal and dietary preferences</small>
+                    </div>
+                    <div class="d-flex align-items-start gap-2 mb-2">
+                        <span class="badge bg-primary rounded-circle" style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.7rem;">2</span>
+                        <small class="text-muted">AI analyzes your profile and health analytics data</small>
+                    </div>
+                    <div class="d-flex align-items-start gap-2">
+                        <span class="badge bg-primary rounded-circle" style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.7rem;">3</span>
+                        <small class="text-muted">Get a complete 7-day plan with meals and calories</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function selectGoal(card, value) {
+        document.querySelectorAll('.goal-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        card.querySelector('input').checked = true;
+    }
+    function selectDiet(pill, value) {
+        document.querySelectorAll('.diet-pill').forEach(p => p.classList.remove('selected'));
+        pill.classList.add('selected');
+        pill.querySelector('input').checked = true;
+    }
+
+    document.getElementById('planForm').addEventListener('submit', function() {
+        const btn = document.getElementById('generateBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating Plan...';
+    });
+</script>
+{% endblock %}

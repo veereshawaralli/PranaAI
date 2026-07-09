@@ -58,9 +58,22 @@
     - Browse medicines by category.
     - Shopping cart functionality.
     - Simulated checkout and order history tracking.
+15. **AI Food Scanner & Diet Tracker** (`diet_tracker` app)
+    - Upload meal photos for AI nutritional analysis.
+    - Gemini Vision estimates calories, protein, carbs, fat, fiber.
+    - Daily calorie trend charts and meal log history.
+16. **AI Meal Planner** (`meal_planner` app)
+    - Personalized 7-day meal plan generation via Gemini AI.
+    - Factors in health goals, dietary preferences, allergies, and analytics data.
+    - Day-by-day tabbed plan view with calorie estimates and daily tips.
+17. **Mental Health & Mood Journal** (`mood_journal` app)
+    - Daily mood check-in with 5-level emoji scale.
+    - Journal writing with activity tags and sleep tracking.
+    - AI sentiment analysis and personalized mental health suggestions.
+    - Mood trend charts, streak tracking, and weekly AI insights.
 
 ## Planned Modules
-*(All modules are now complete! 13 features implemented. Please suggest new features to add to the roadmap.)*
+*(All modules are now complete! 17 features implemented. Please suggest new features to add to the roadmap.)*
 
 ## Note for AI Assistant
 - Instead of scanning directories, read this file for a high-level overview.

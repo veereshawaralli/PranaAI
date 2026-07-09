@@ -34,6 +34,9 @@ urlpatterns = [
     path('analytics/', include('analytics.urls')),
     path('symptom-checker/', include('symptom_checker.urls')),
     path('pharmacy/', include('pharmacy.urls')),
+    path('diet/', include('diet_tracker.urls')),
+    path('meal-planner/', include('meal_planner.urls')),
+    path('mood-journal/', include('mood_journal.urls')),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
 ]
 

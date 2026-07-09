@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Food Scanner - Prana AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-zone {
+        border: 2.5px dashed #CBD5E1;
+        border-radius: var(--radius-xl);
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: var(--transition);
+        cursor: pointer;
+        background: #F8FAFC;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+        border-color: #F97316;
+        background: rgba(249,115,22,0.04);
+    }
+    .upload-zone .upload-icon {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #F97316, #FB923C);
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem; color: white;
+        box-shadow: 0 8px 25px rgba(249,115,22,0.3);
+    }
+    .meal-type-pills .form-check {
+        display: inline-flex;
+        margin-right: 0.5rem;
+    }
+    .meal-type-pills .form-check-input { display: none; }
+    .meal-type-pills .form-check-label {
+        padding: 0.5rem 1.2rem;
+        border-radius: 50rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1.5px solid #E2E8F0;
+        background: white;
+        color: #64748B;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    .meal-type-pills .form-check-input:checked + .form-check-label {
+        background: linear-gradient(135deg, #F97316, #FB923C);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 4px 12px rgba(249,115,22,0.25);
+    }
+    .preview-img {
+        max-height: 250px;
+        border-radius: var(--radius-lg);
+        object-fit: cover;
+        box-shadow: var(--shadow-md);
+        display: none;
+        margin: 1rem auto;
+    }
+    .recent-scan-thumb {
+        width: 60px; height: 60px;
+        object-fit: cover;
+        border-radius: var(--radius-md);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="dashboard-welcome animate-in" style="background: linear-gradient(135deg, #EA580C 0%, #C2410C 50%, #F97316 100%);">
+    <div class="row align-items-center">
+        <div class="col">
+            <h2><i class="bi bi-camera me-2"></i>AI Food Scanner</h2>
+            <p>Upload a photo of your meal and let AI analyze its nutritional content instantly.</p>
+        </div>
+        <div class="col-auto d-none d-md-block" style="position: relative; z-index: 1;">
+            <a href="{% url 'diet_tracker:food_history' %}" class="btn btn-white rounded-pill px-4 py-2 fw-bold" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.25);">
+                <i class="bi bi-clock-history me-1"></i>View History
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Upload Section -->
+    <div class="col-lg-8">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.1s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #F97316, #FB923C);"><i class="bi bi-upload"></i></div>
+                    <h5>Scan Your Meal</h5>
+                </div>
+
+                <form method="post" enctype="multipart/form-data" id="scanForm">
+                    {% csrf_token %}
+
+                    <!-- Meal Type Pills -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Meal Type</label>
+                        <div class="meal-type-pills">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="meal_type" id="breakfast" value="breakfast">
+                                <label class="form-check-label" for="breakfast">🌅 Breakfast</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="meal_type" id="lunch" value="lunch" checked>
+                                <label class="form-check-label" for="lunch">☀️ Lunch</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="meal_type" id="dinner" value="dinner">
+                                <label class="form-check-label" for="dinner">🌙 Dinner</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="meal_type" id="snack" value="snack">
+                                <label class="form-check-label" for="snack">🍿 Snack</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload Zone -->
+                    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('id_image').click();">
+                        <div class="upload-icon"><i class="bi bi-camera"></i></div>
+                        <h5 class="fw-bold mb-1">Upload Meal Photo</h5>
+                        <p class="text-muted mb-0">Drag & drop an image here, or click to browse</p>
+                        <small class="text-muted">Supports JPG, PNG, WEBP</small>
+                        <input type="file" name="image" id="id_image" accept="image/*" style="display: none;" onchange="previewImage(this);" required>
+                    </div>
+
+                    <img id="imagePreview" class="preview-img d-block mx-auto" alt="Preview">
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5" id="scanBtn">
+                            <i class="bi bi-stars me-2"></i>Analyze with AI
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Scans Sidebar -->
+    <div class="col-lg-4">
+        <div class="dashboard-card animate-in" style="animation-delay: 0.2s;">
+            <div class="card-body">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, #14B8A6, #0D9488);"><i class="bi bi-clock-history"></i></div>
+                    <h5>Recent Scans</h5>
+                </div>
+
+                {% if recent_scans %}
+                    {% for scan in recent_scans %}
+                    <div class="d-flex align-items-center gap-3 py-2 border-bottom">
+                        <img src="{{ scan.image.url }}" class="recent-scan-thumb" alt="{{ scan.food_name }}">
+                        <div class="flex-grow-1">
+                            <div class="fw-bold" style="font-size: 0.9rem;">{{ scan.food_name|default:"Unanalyzed" }}</div>
+                            <small class="text-muted">{{ scan.calories|default:"--" }} kcal • {{ scan.get_meal_type_display }}</small>
+                        </div>
+                        <a href="{% url 'diet_tracker:scan_result' scan.id %}" class="btn btn-sm btn-outline-primary rounded-pill">View</a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-camera fs-1 text-muted"></i>
+                        <p class="text-muted mt-2 mb-0">No scans yet. Upload your first meal!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Tip -->
+        <div class="dashboard-card mt-4 animate-in" style="animation-delay: 0.3s;">
+            <div class="card-body text-center py-4">
+                <div style="width: 56px; height: 56px; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(249,115,22,0.1);">
+                    <i class="bi bi-lightbulb fs-3" style="color: #F97316;"></i>
+                </div>
+                <h6 class="fw-bold mb-1">Pro Tip</h6>
+                <p class="text-muted small mb-0">Take photos with good lighting and include the full plate for the most accurate AI analysis.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById('imagePreview');
+        const zone = document.getElementById('uploadZone');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                zone.style.borderColor = '#F97316';
+                zone.style.background = 'rgba(249,115,22,0.04)';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // Drag and drop
+    const zone = document.getElementById('uploadZone');
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        const input = document.getElementById('id_image');
+        input.files = e.dataTransfer.files;
+        previewImage(input);
+    });
+
+    // Form submit loading
+    document.getElementById('scanForm').addEventListener('submit', function() {
+        const btn = document.getElementById('scanBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyzing...';
+    });
+</script>
+{% endblock %}

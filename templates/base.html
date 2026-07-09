@@ -79,6 +79,19 @@
                                 <i class="bi bi-graph-up-arrow me-1"></i> Analytics
                             </a>
                         </li>
+
+                        <!-- Wellness Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-flower1 me-1"></i> Wellness
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3">
+                                <li><a class="dropdown-item py-2" href="{% url 'diet_tracker:scan_food' %}"><i class="bi bi-camera text-warning me-2"></i> Food Scanner</a></li>
+                                <li><a class="dropdown-item py-2" href="{% url 'meal_planner:generate_plan' %}"><i class="bi bi-calendar2-week text-success me-2"></i> Meal Planner</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item py-2" href="{% url 'mood_journal:dashboard' %}"><i class="bi bi-journal-heart text-info me-2"></i> Mood Journal</a></li>
+                            </ul>
+                        </li>
                         
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'pharmacy:medicine_list' %}">
