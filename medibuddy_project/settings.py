@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'diet_tracker',
     'meal_planner',
     'mood_journal',
+    'translator',
     
     # Third party apps
     'crispy_forms',

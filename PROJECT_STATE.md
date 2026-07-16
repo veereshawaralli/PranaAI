@@ -71,9 +71,14 @@
     - Journal writing with activity tags and sleep tracking.
     - AI sentiment analysis and personalized mental health suggestions.
     - Mood trend charts, streak tracking, and weekly AI insights.
+18. **Multi-Lingual Medical Translator** (`translator` app)
+    - Text Translation: Paste medical text and translate to 20+ languages with plain-language explanations.
+    - Document Translation: Upload lab report / medical document images for AI extraction and translation.
+    - Voice Translation: Speech-to-text input via Web Speech API, AI translation, and text-to-speech output.
+    - Translation history with delete functionality.
 
 ## Planned Modules
-*(All modules are now complete! 17 features implemented. Please suggest new features to add to the roadmap.)*
+*(All modules are now complete! 18 features implemented. Please suggest new features to add to the roadmap.)*
 
 ## Note for AI Assistant
 - Instead of scanning directories, read this file for a high-level overview.

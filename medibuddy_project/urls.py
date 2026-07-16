@@ -37,6 +37,7 @@ urlpatterns = [
     path('diet/', include('diet_tracker.urls')),
     path('meal-planner/', include('meal_planner.urls')),
     path('mood-journal/', include('mood_journal.urls')),
+    path('translator/', include('translator.urls')),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
 ]
 

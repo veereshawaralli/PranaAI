@@ -434,7 +434,6 @@ label, .form-label {
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-xs);
     transition: var(--transition);
-    height: 100%;
 }
 
 .dashboard-card:hover {

@@ -126,7 +126,7 @@
                         <input type="file" name="image" id="id_image" accept="image/*" style="display: none;" onchange="previewImage(this);" required>
                     </div>
 
-                    <img id="imagePreview" class="preview-img d-block mx-auto" alt="Preview">
+                    <img id="imagePreview" class="preview-img d-none mx-auto" alt="Preview">
 
                     <div class="text-center mt-4">
                         <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5" id="scanBtn">
@@ -140,7 +140,7 @@
 
     <!-- Recent Scans Sidebar -->
     <div class="col-lg-4">
-        <div class="dashboard-card animate-in" style="animation-delay: 0.2s;">
+        <div class="dashboard-card h-auto animate-in" style="animation-delay: 0.2s;">
             <div class="card-body">
                 <div class="section-header">
                     <div class="section-icon" style="background: linear-gradient(135deg, #14B8A6, #0D9488);"><i class="bi bi-clock-history"></i></div>
@@ -168,7 +168,7 @@
         </div>
 
         <!-- Quick Tip -->
-        <div class="dashboard-card mt-4 animate-in" style="animation-delay: 0.3s;">
+        <div class="dashboard-card mt-4 h-auto animate-in" style="animation-delay: 0.3s;">
             <div class="card-body text-center py-4">
                 <div style="width: 56px; height: 56px; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(249,115,22,0.1);">
                     <i class="bi bi-lightbulb fs-3" style="color: #F97316;"></i>
@@ -190,7 +190,8 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 preview.src = e.target.result;
-                preview.style.display = 'block';
+                preview.classList.remove('d-none');
+                preview.classList.add('d-block');
                 zone.style.borderColor = '#F97316';
                 zone.style.background = 'rgba(249,115,22,0.04)';
             };

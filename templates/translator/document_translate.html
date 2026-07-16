@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Document Translation — Prana AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header { padding: 2.5rem 0 1.5rem; }
+    .page-header h2 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        color: var(--medical-darker);
+        letter-spacing: -.5px;
+    }
+    .page-header .breadcrumb-item a { color: #14B8A6; text-decoration: none; }
+
+    .translate-panel {
+        background: #fff;
+        border: 1px solid #E2E8F0;
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+    .panel-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #F1F5F9;
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+    }
+    .panel-header h6 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        margin: 0;
+        color: var(--medical-darker);
+    }
+    .panel-body { padding: 1.5rem; }
+
+    /* Upload Zone */
+    .upload-zone {
+        border: 2px dashed #CBD5E1;
+        border-radius: .75rem;
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: all .3s ease;
+        cursor: pointer;
+        background: #FAFBFC;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+        border-color: #14B8A6;
+        background: rgba(20,184,166,0.04);
+    }
+    .upload-zone i { font-size: 2.5rem; color: #94A3B8; }
+    .upload-zone.dragover i { color: #14B8A6; }
+
+    /* Preview */
+    .image-preview {
+        max-height: 350px;
+        border-radius: .75rem;
+        border: 1px solid #E2E8F0;
+        object-fit: contain;
+        width: 100%;
+        background: #F8FAFC;
+    }
+
+    /* Result */
+    .result-card {
+        background: linear-gradient(135deg, rgba(20,184,166,0.04), rgba(6,182,212,0.04));
+        border: 1px solid rgba(20,184,166,0.15);
+        border-radius: 1rem;
+        overflow: hidden;
+        animation: fadeInUp .5s ease;
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .result-section {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(20,184,166,0.1);
+    }
+    .result-section:last-child { border-bottom: none; }
+    .result-label {
+        font-size: .75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: #14B8A6;
+        margin-bottom: .5rem;
+    }
+    .result-text {
+        color: #1E293B;
+        line-height: 1.7;
+        white-space: pre-wrap;
+    }
+    .plain-text {
+        color: #475569;
+        font-size: .95rem;
+        line-height: 1.6;
+        background: rgba(20,184,166,0.06);
+        border-radius: .5rem;
+        padding: 1rem;
+    }
+
+    .btn-translate {
+        background: linear-gradient(135deg, #14B8A6, #0D9488);
+        color: #fff;
+        border: none;
+        font-weight: 700;
+        padding: .75rem 2rem;
+        border-radius: 50rem;
+        transition: all .3s ease;
+    }
+    .btn-translate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(20,184,166,.4);
+        color: #fff;
+    }
+    .action-btn {
+        width: 38px; height: 38px;
+        border-radius: 50%;
+        border: 1px solid #E2E8F0;
+        background: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .2s ease;
+        cursor: pointer;
+        color: #64748B;
+    }
+    .action-btn:hover { border-color: #14B8A6; color: #14B8A6; }
+    .action-btn.speaking { border-color: #F59E0B; color: #F59E0B; animation: pulse-btn 1s infinite; }
+    @keyframes pulse-btn {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,.4); }
+        50% { box-shadow: 0 0 0 8px rgba(245,158,11,0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{% url 'translator:home' %}">Translator</a></li>
+            <li class="breadcrumb-item active">Document Translation</li>
+        </ol>
+    </nav>
+    <h2><i class="bi bi-file-earmark-image me-2" style="color: #14B8A6;"></i>Document Translation</h2>
+    <p class="text-muted mb-0">Upload a lab report, prescription, or any medical document image for AI translation.</p>
+</div>
+
+<div class="row g-4">
+    <!-- Upload Panel -->
+    <div class="col-lg-6">
+        <div class="translate-panel h-100">
+            <div class="panel-header">
+                <i class="bi bi-upload" style="color: #14B8A6;"></i>
+                <h6>Upload Document</h6>
+            </div>
+            <div class="panel-body">
+                <form method="post" enctype="multipart/form-data" id="docForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary small">TRANSLATE TO</label>
+                        {{ form.target_language }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary small">MEDICAL DOCUMENT</label>
+                        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('id_document_image').click()">
+                            <i class="bi bi-cloud-arrow-up d-block mb-2"></i>
+                            <p class="mb-1 fw-semibold text-dark">Click to upload or drag & drop</p>
+                            <small class="text-muted">Supports JPG, PNG, WEBP</small>
+                        </div>
+                        <div class="d-none">{{ form.document_image }}</div>
+                        <img id="imagePreview" class="image-preview mt-3 d-none" alt="Preview">
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-translate" id="submitBtn" disabled>
+                            <i class="bi bi-translate me-1"></i> Translate Document
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Panel -->
+    <div class="col-lg-6">
+        {% if result %}
+        <div class="result-card">
+            <div class="panel-header" style="border-bottom: 1px solid rgba(20,184,166,0.15);">
+                <i class="bi bi-check-circle-fill" style="color: #22C55E;"></i>
+                <h6>Translation — {{ result.target_language }}</h6>
+                <div class="ms-auto d-flex gap-2">
+                    <button class="action-btn" title="Copy" onclick="navigator.clipboard.writeText(document.getElementById('translatedText').innerText)">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                    <button class="action-btn" id="speakBtn" title="Read aloud" onclick="speakResult()">
+                        <i class="bi bi-volume-up-fill"></i>
+                    </button>
+                </div>
+            </div>
+
+            {% if result.image_url %}
+            <div class="result-section text-center" style="background: #F8FAFC;">
+                <img src="{{ result.image_url }}" class="image-preview" alt="Uploaded document">
+            </div>
+            {% endif %}
+
+            {% if result.original_text %}
+            <div class="result-section">
+                <div class="result-label"><i class="bi bi-file-text me-1"></i> Extracted Original Text</div>
+                <div class="result-text" style="font-size: .9rem; color: #64748B;">{{ result.original_text }}</div>
+            </div>
+            {% endif %}
+
+            <div class="result-section">
+                <div class="result-label"><i class="bi bi-translate me-1"></i> Translated Text</div>
+                <div class="result-text" id="translatedText">{{ result.translated_text }}</div>
+            </div>
+
+            {% if result.plain_explanation %}
+            <div class="result-section">
+                <div class="result-label"><i class="bi bi-lightbulb me-1"></i> Plain Language Explanation</div>
+                <div class="plain-text">{{ result.plain_explanation }}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="translate-panel h-100 d-flex align-items-center justify-content-center" style="min-height: 350px;">
+            <div class="text-center text-muted p-4">
+                <i class="bi bi-file-earmark-image" style="font-size: 3rem; opacity: 0.2;"></i>
+                <p class="mt-3 mb-0">Upload a document to see its translation here</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const input = document.getElementById('id_document_image');
+    const preview = document.getElementById('imagePreview');
+    const zone = document.getElementById('uploadZone');
+    const submitBtn = document.getElementById('submitBtn');
+
+    input.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                preview.src = ev.target.result;
+                preview.classList.remove('d-none');
+                zone.style.display = 'none';
+                submitBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Drag & drop
+    zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+            input.dispatchEvent(new Event('change'));
+        }
+    });
+
+    // Text-to-Speech
+    function speakResult() {
+        const text = document.getElementById('translatedText')?.innerText;
+        const btn = document.getElementById('speakBtn');
+        if (!text) return;
+        if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+            btn.classList.remove('speaking');
+            return;
+        }
+        const utterance = new SpeechSynthesisUtterance(text);
+        const langMap = {
+            'Hindi': 'hi-IN', 'Kannada': 'kn-IN', 'Tamil': 'ta-IN',
+            'Telugu': 'te-IN', 'Malayalam': 'ml-IN', 'Marathi': 'mr-IN',
+            'Bengali': 'bn-IN', 'Gujarati': 'gu-IN', 'Punjabi': 'pa-IN',
+            'Urdu': 'ur-PK', 'Spanish': 'es-ES', 'French': 'fr-FR',
+            'German': 'de-DE', 'Arabic': 'ar-SA', 'Mandarin Chinese': 'zh-CN',
+            'Japanese': 'ja-JP', 'Korean': 'ko-KR', 'Portuguese': 'pt-BR',
+            'Russian': 'ru-RU', 'Thai': 'th-TH',
+        };
+        const targetLang = '{{ result.target_language|default:"" }}';
+        if (langMap[targetLang]) utterance.lang = langMap[targetLang];
+        utterance.onstart = () => btn.classList.add('speaking');
+        utterance.onend = () => btn.classList.remove('speaking');
+        window.speechSynthesis.speak(utterance);
+    }
+</script>
+{% endblock %}

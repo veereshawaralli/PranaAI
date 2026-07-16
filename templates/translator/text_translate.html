@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Text Translation — Prana AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        padding: 2.5rem 0 1.5rem;
+    }
+    .page-header h2 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 800;
+        color: var(--medical-darker);
+        letter-spacing: -.5px;
+    }
+    .page-header .breadcrumb-item a { color: #6366F1; text-decoration: none; }
+
+    /* Panels */
+    .translate-panel {
+        background: #fff;
+        border: 1px solid #E2E8F0;
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+    .panel-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #F1F5F9;
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+    }
+    .panel-header i { font-size: 1.2rem; }
+    .panel-header h6 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        margin: 0;
+        color: var(--medical-darker);
+    }
+    .panel-body { padding: 1.5rem; }
+
+    /* Result Card */
+    .result-card {
+        background: linear-gradient(135deg, rgba(99,102,241,0.04), rgba(139,92,246,0.04));
+        border: 1px solid rgba(99,102,241,0.15);
+        border-radius: 1rem;
+        overflow: hidden;
+        animation: fadeInUp .5s ease;
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .result-section {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(99,102,241,0.1);
+    }
+    .result-section:last-child { border-bottom: none; }
+    .result-label {
+        font-size: .75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: #6366F1;
+        margin-bottom: .5rem;
+    }
+    .result-text {
+        color: #1E293B;
+        line-height: 1.7;
+        font-size: 1rem;
+        white-space: pre-wrap;
+    }
+    .plain-text {
+        color: #475569;
+        font-size: .95rem;
+        line-height: 1.6;
+        background: rgba(99,102,241,0.06);
+        border-radius: .5rem;
+        padding: 1rem;
+    }
+
+    /* Buttons */
+    .btn-translate {
+        background: linear-gradient(135deg, #6366F1, #7C3AED);
+        color: #fff;
+        border: none;
+        font-weight: 700;
+        padding: .75rem 2rem;
+        border-radius: 50rem;
+        transition: all .3s ease;
+    }
+    .btn-translate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(99,102,241,.4);
+        color: #fff;
+    }
+    .action-btn {
+        width: 38px; height: 38px;
+        border-radius: 50%;
+        border: 1px solid #E2E8F0;
+        background: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .2s ease;
+        cursor: pointer;
+        color: #64748B;
+    }
+    .action-btn:hover { border-color: #6366F1; color: #6366F1; }
+    .action-btn.speaking { border-color: #F59E0B; color: #F59E0B; animation: pulse-btn 1s infinite; }
+    @keyframes pulse-btn {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,.4); }
+        50% { box-shadow: 0 0 0 8px rgba(245,158,11,0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="page-header">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{% url 'translator:home' %}">Translator</a></li>
+            <li class="breadcrumb-item active">Text Translation</li>
+        </ol>
+    </nav>
+    <h2><i class="bi bi-textarea-t me-2" style="color: #6366F1;"></i>Text Translation</h2>
+    <p class="text-muted mb-0">Paste medical text below and translate it into your preferred language.</p>
+</div>
+
+<div class="row g-4">
+    <!-- Input Panel -->
+    <div class="col-lg-6">
+        <div class="translate-panel h-100">
+            <div class="panel-header">
+                <i class="bi bi-pencil-square" style="color: #6366F1;"></i>
+                <h6>Original Text</h6>
+            </div>
+            <div class="panel-body">
+                <form method="post" id="textTranslateForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_target_language" class="form-label fw-semibold text-secondary small">TRANSLATE TO</label>
+                        {{ form.target_language }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_text_to_translate" class="form-label fw-semibold text-secondary small">MEDICAL TEXT</label>
+                        {{ form.text_to_translate }}
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted" id="charCount">0 characters</small>
+                        <button type="submit" class="btn btn-translate">
+                            <i class="bi bi-translate me-1"></i> Translate
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Panel -->
+    <div class="col-lg-6">
+        {% if result %}
+        <div class="result-card h-100">
+            <div class="panel-header" style="border-bottom: 1px solid rgba(99,102,241,0.15);">
+                <i class="bi bi-check-circle-fill" style="color: #22C55E;"></i>
+                <h6>Translation — {{ result.target_language }}</h6>
+                <div class="ms-auto d-flex gap-2">
+                    <button class="action-btn" title="Copy translation" onclick="copyResult()">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                    <button class="action-btn" id="speakBtn" title="Read aloud" onclick="speakResult()">
+                        <i class="bi bi-volume-up-fill"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="result-section">
+                <div class="result-label"><i class="bi bi-translate me-1"></i> Translated Text</div>
+                <div class="result-text" id="translatedText">{{ result.translated_text }}</div>
+            </div>
+            {% if result.plain_explanation %}
+            <div class="result-section">
+                <div class="result-label"><i class="bi bi-lightbulb me-1"></i> Plain Language Explanation</div>
+                <div class="plain-text">{{ result.plain_explanation }}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="translate-panel h-100 d-flex align-items-center justify-content-center" style="min-height: 300px;">
+            <div class="text-center text-muted p-4">
+                <i class="bi bi-translate" style="font-size: 3rem; opacity: 0.2;"></i>
+                <p class="mt-3 mb-0">Your translation will appear here</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Character counter
+    const textarea = document.getElementById('id_text_to_translate');
+    const counter = document.getElementById('charCount');
+    if (textarea && counter) {
+        textarea.addEventListener('input', () => {
+            counter.textContent = textarea.value.length + ' characters';
+        });
+        counter.textContent = (textarea.value || '').length + ' characters';
+    }
+
+    // Copy to clipboard
+    function copyResult() {
+        const text = document.getElementById('translatedText')?.innerText;
+        if (text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.currentTarget;
+                btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+                setTimeout(() => btn.innerHTML = '<i class="bi bi-clipboard"></i>', 1500);
+            });
+        }
+    }
+
+    // Text-to-Speech
+    function speakResult() {
+        const text = document.getElementById('translatedText')?.innerText;
+        const btn = document.getElementById('speakBtn');
+        if (!text) return;
+
+        if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+            btn.classList.remove('speaking');
+            return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        // Map language name to BCP 47 tag for speech synthesis
+        const langMap = {
+            'Hindi': 'hi-IN', 'Kannada': 'kn-IN', 'Tamil': 'ta-IN',
+            'Telugu': 'te-IN', 'Malayalam': 'ml-IN', 'Marathi': 'mr-IN',
+            'Bengali': 'bn-IN', 'Gujarati': 'gu-IN', 'Punjabi': 'pa-IN',
+            'Urdu': 'ur-PK', 'Spanish': 'es-ES', 'French': 'fr-FR',
+            'German': 'de-DE', 'Arabic': 'ar-SA', 'Mandarin Chinese': 'zh-CN',
+            'Japanese': 'ja-JP', 'Korean': 'ko-KR', 'Portuguese': 'pt-BR',
+            'Russian': 'ru-RU', 'Thai': 'th-TH',
+        };
+        const targetLang = '{{ result.target_language|default:"" }}';
+        if (langMap[targetLang]) utterance.lang = langMap[targetLang];
+
+        utterance.onstart = () => btn.classList.add('speaking');
+        utterance.onend = () => btn.classList.remove('speaking');
+        utterance.onerror = () => btn.classList.remove('speaking');
+
+        window.speechSynthesis.speak(utterance);
+    }
+</script>
+{% endblock %}
